@@ -1,28 +1,35 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 public static class ArenaLog
 {
-    public enum Level { Info, Warning, Error }
+    public enum Level { Info, Warning, Error, Success }
 
-    public static bool EnableLogging = true;
+    public static bool EnableLogging => ArenaConfig.EnableLogging;
 
     public static List<string> OutputLog = new List<string>();
 
-    public static void Log(string message, Level level = Level.Info)
+    public static void Log(object source, string message, Level level = Level.Info)
     {
         if (!EnableLogging) { return; }
 
         string color = level switch
         {
-            Level.Info => "00FF00",
+            Level.Info => "FFFFFF",
             Level.Warning => "FFFF00",
             Level.Error => "FF0000",
+            Level.Success => "00FF00",
             _ => "FFFFFF"
         };
 
-        string prefix = "[ArenaAllocator] ";
+        string prefix = source switch
+        {
+            string s => $"[{s}] ",
+            _ => $"[{source.GetType().ToString()}] "
+        };
+
         string formatted = $"<color=#{color}>{prefix}{message}</color>";
 
         switch (level)
@@ -35,6 +42,9 @@ public static class ArenaLog
                 break;
             case Level.Error:
                 Debug.LogError(formatted);
+                break;
+            case Level.Success:
+                Debug.Log(formatted);
                 break;
         }
 
@@ -51,13 +61,13 @@ public static class ArenaLog
     {
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         string filename = $"ArenaLog_{timestamp}.txt";
-        string path = System.IO.Path.Combine(Application.persistentDataPath, filename);
+        string path = Path.Combine(Application.persistentDataPath, filename);
         try
         {
-            System.IO.File.WriteAllLines(path, OutputLog);
+            File.WriteAllLines(path, OutputLog);
             Debug.Log($"<color=#00FFFF>OutputLog saved to: {path}</color>");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError($"<color=#FF0000>Failed to save OutputLog: {ex.Message}</color>");
         }
