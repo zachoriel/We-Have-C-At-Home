@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEngine.TestTools;
+using System.Text.RegularExpressions;
+#endif
 
 public static class ArenaLog
 {
@@ -72,4 +76,23 @@ public static class ArenaLog
             Debug.LogError($"<color=#FF0000>Failed to save OutputLog: {ex.Message}</color>");
         }
     }
+
+#if UNITY_EDITOR
+    public static void ExpectLog(LogType logType, string substring = "")
+    {
+        if (!ArenaConfig.EnableLogging) { return; }
+
+        LogAssert.Expect(logType, new Regex(substring));
+    }
+
+    public static void ExpectAnyLog((LogType, string)[] expectations)
+    {
+        if (!EnableLogging) { return; }
+
+        foreach (var (type, pattern) in expectations)
+        {
+            LogAssert.Expect(type, new Regex(pattern));
+        }
+    }
+#endif
 }

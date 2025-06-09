@@ -14,6 +14,7 @@ public unsafe struct ArenaAllocator : IDisposable
     public bool IsCreated => basePtr != null;
     public int GetID() => id;
     public int GetCapacity() => capacity;
+    public int GetOffset() => offset;
     public long GetOverAlignment() => totalAlignmentPadding;
 
     public ArenaAllocator(int id, int capacityInBytes, Allocator allocator, int arenaAlignment = 64)

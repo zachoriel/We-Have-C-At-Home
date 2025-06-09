@@ -36,6 +36,11 @@ public static class ArenaMonitor
         records.RemoveAll(r => r.ArenaID == arenaID);
     }
 
+    public static ArenaAllocationRecord[] GetArenaRecords(int arenaID)
+    {
+        return records.FindAll(r => r.ArenaID == arenaID).ToArray();
+    }
+
     public static void ClearAllRecords()
     {
         records.Clear();
