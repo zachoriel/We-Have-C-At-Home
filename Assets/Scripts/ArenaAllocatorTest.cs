@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -6,8 +8,7 @@ using UnityEngine.Assertions;
 
 public class ArenaAllocatorTest : MonoBehaviour
 {
-    private ArenaAllocator memoryArena1;
-    private ArenaAllocator memoryArena2;
+    private Dictionary<int, ArenaAllocator> liveArenas = new Dictionary<int, ArenaAllocator>();
 
     private struct TestStruct
     {
@@ -24,26 +25,32 @@ public class ArenaAllocatorTest : MonoBehaviour
         try
         {
             int arenaSize = 256;
-            memoryArena1 = new ArenaAllocator(1, arenaSize, Allocator.Persistent);
+            ArenaAllocator memoryArena1 = new ArenaAllocator(1, arenaSize, Allocator.Persistent);
+            ArenaAllocator memoryArena2;
+            liveArenas[1] = memoryArena1;
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
             PrintTestMessage("Begin Test 1: Valid Allocation Test");
             TestValidAllocation(ref memoryArena1, true);
+            SyncAllocator(1, ref memoryArena1);
             PrintTestMessage("End Test 1");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
             PrintTestMessage("Begin Test 2: Invalid Alignment Test");
             TestInvalidAlignment(ref memoryArena1);
+            SyncAllocator(1, ref memoryArena1);
             PrintTestMessage("End Test 2");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
             PrintTestMessage("Begin Test 3: Out of Memory Test");
             TestOutOfMemory(ref memoryArena1);
+            SyncAllocator(1, ref memoryArena1);
             PrintTestMessage("End Test 3");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
             PrintTestMessage("Begin Test 4: Reset Test");
             memoryArena1.Reset();
+            SyncAllocator(1, ref memoryArena1);
             PrintTestMessage("End Test 4");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
@@ -51,6 +58,7 @@ public class ArenaAllocatorTest : MonoBehaviour
             TestValidAllocation(ref memoryArena1, true, "First Test Tag");
             TestValidAllocation(ref memoryArena1, false, "Second Test Tag");
             TestValidAllocation(ref memoryArena1, true);
+            SyncAllocator(1, ref memoryArena1);
             PrintTestMessage("End Test 5");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
@@ -59,24 +67,26 @@ public class ArenaAllocatorTest : MonoBehaviour
             TestValidAllocation(ref memoryArena2, true);
             TestValidAllocation(ref memoryArena2, false);
             TestValidAllocation(ref memoryArena2, true);
+            liveArenas[2] = memoryArena2;
             PrintTestMessage("End Test 6");
 
             yield return new WaitForSeconds(timeBetweenTestsInSeconds);
-            ArenaMonitor.PrintSummary();
+            ArenaMonitor.PrintSummary(liveArenas);
+
+            memoryArena1.Dispose();
+            memoryArena2.Dispose();
         }
         finally
         {
-            memoryArena1.Dispose();
-            memoryArena2.Dispose();
+            liveArenas.Clear();
         }
 
         yield return null;
     }
 
-    private void OnDisable()
+    private void SyncAllocator(int id, ref ArenaAllocator arena)
     {
-        memoryArena1.Dispose();
-        memoryArena2.Dispose();
+        liveArenas[id] = arena;
     }
 
     private unsafe void TestValidAllocation(ref ArenaAllocator arena, bool smartAlloc, string tag = "")

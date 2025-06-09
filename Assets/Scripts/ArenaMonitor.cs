@@ -12,19 +12,9 @@ public struct ArenaAllocationRecord
 
 public static class ArenaMonitor
 {
-    private static Dictionary<int, ArenaAllocator> arenaMap = new Dictionary<int, ArenaAllocator>();
     private static List<ArenaAllocationRecord> records = new List<ArenaAllocationRecord>();
 
     public static bool IsTracking => ArenaConfig.TrackAllocations;
-
-    public static void TrackArena(ArenaAllocator arena)
-    {
-        int id = arena.GetID();
-        if (!arenaMap.ContainsKey(id))
-        {
-            arenaMap.Add(id, arena);
-        }
-    }
 
     public static void RecordAllocation(ArenaAllocator arena, int offset, int size, int alignment, int alignmentPadding, string tag = "")
     {
@@ -51,12 +41,7 @@ public static class ArenaMonitor
         records.Clear();
     }
 
-    public static void ClearArenas()
-    {
-        arenaMap.Clear();
-    }
-
-    public static void PrintSummary()
+    public static void PrintSummary(Dictionary<int, ArenaAllocator> liveArenas)
     {
         if (!IsTracking)
         {
@@ -70,7 +55,7 @@ public static class ArenaMonitor
         }
 
         var summary = $"{records.Count} total allocations tracked.\n";
-        foreach (var kvp in arenaMap)
+        foreach (var kvp in liveArenas)
         {
             int id = kvp.Key;
             ArenaAllocator arena = kvp.Value;
@@ -78,7 +63,7 @@ public static class ArenaMonitor
 
             summary += $"Arena {id} Data\n ------------\n" +
                 $"Total bytes lost to over-alignment: {arena.GetOverAlignment()}\n" +
-                $"Over-alignment padding accounts for {wasteRatio}% of arena capacity.\n";
+                $"Over-alignment padding accounts for {wasteRatio * 100}% of arena capacity.\n";
 
             foreach (var record in records)
             {
@@ -91,8 +76,4 @@ public static class ArenaMonitor
         }
         ArenaLog.Log("ArenaMonitor", summary.TrimEnd('\n'), ArenaLog.Level.Info);
     }
-
-    // For use in Reset/Dispose
-    public static bool IsArenaTracked(int id) => arenaMap.ContainsKey(id);
-    public static void RemoveArena(int id) => arenaMap.Remove(id);
 }

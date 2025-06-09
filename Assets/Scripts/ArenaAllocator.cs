@@ -27,8 +27,6 @@ public unsafe struct ArenaAllocator : IDisposable
         this.allocator = allocator;
         basePtr = (byte*)UnsafeUtility.Malloc(capacity, arenaAlignment, allocator);
         ArenaLog.Log(this, $"Allocated {capacity} bytes.", ArenaLog.Level.Success);
-
-        ArenaMonitor.TrackArena(this);
     }
 
     public void* Allocate(int sizeInBytes, int alignment = 16, string tag = "")
@@ -78,11 +76,6 @@ public unsafe struct ArenaAllocator : IDisposable
         totalAlignmentPadding = 0;
 
         ArenaMonitor.ClearArenaRecords(this.GetID());
-
-        if (!ArenaMonitor.IsArenaTracked(this.GetID()))
-        {
-            ArenaMonitor.TrackArena(this);
-        }
     }
 
     public void Dispose()
@@ -95,7 +88,6 @@ public unsafe struct ArenaAllocator : IDisposable
             offset = 0;
             totalAlignmentPadding = 0;
             ArenaMonitor.ClearArenaRecords(this.GetID());
-            ArenaMonitor.RemoveArena(this.GetID());
         }
     }
 }
