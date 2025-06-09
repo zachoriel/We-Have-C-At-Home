@@ -81,7 +81,6 @@ public static class ArenaLog
     public static void ExpectLog(LogType logType, string substring = "")
     {
         if (!ArenaConfig.EnableLogging) { return; }
-
         LogAssert.Expect(logType, new Regex(substring));
     }
 

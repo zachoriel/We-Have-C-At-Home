@@ -2,7 +2,6 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 public class ArenaAllocatorTests
 {
