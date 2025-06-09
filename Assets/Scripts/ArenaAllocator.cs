@@ -14,10 +14,7 @@ public unsafe struct ArenaAllocator : IDisposable
 
     public ArenaAllocator(int capacityInBytes, Allocator allocator, int arenaAlignment = 64)
     {
-        if ((arenaAlignment & (arenaAlignment - 1)) != 0)
-        {
-            ArenaLog.Log("Alignment must be a power of two.", ArenaLog.Level.Warning);
-        }
+        ArenaUtil.ValidatePowerOfTwo(arenaAlignment, "ArenaAllocator constructor", shouldThrow: true);
 
         capacity = capacityInBytes;
         offset = 0;
@@ -28,9 +25,9 @@ public unsafe struct ArenaAllocator : IDisposable
 
     public void* Allocate(int sizeInBytes, int alignment = 16)
     {
-        if ((alignment & (alignment - 1)) != 0)
+        if (!ArenaUtil.ValidatePowerOfTwo(alignment, "Allocate()", shouldThrow: false))
         {
-            ArenaLog.Log("Alignment must be a power of two.", ArenaLog.Level.Warning);
+            return null;
         }
 
         long alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
