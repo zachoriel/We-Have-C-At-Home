@@ -11,6 +11,10 @@ One of the biggest drawbacks to memory-managed frameworks like C# is the perform
 
 Unsafe code is a language feature that allows you to bypass the compiler's memory safety checks and directly allocate, manipulate, and deallocate memory via pointers. In Unity, you also get access to Malloc(), Free(), and other fun toys via the UnsafeUtility class (Unity.Collections.LowLevel.Unsafe namespace). 
 
+Has this little experiment made me wanna become a system-level developer?\
+Absolutely not.\
+But I had fun and learned a lot, and that's what matters, right? 😄
+
 # Memory Arena
 
 A memory arena is a low-level memory management technique where a large block of memory is allocated up front, and then smaller allocations are made from that block manually. This eliminates per-allocation overhead, enables predictable performance, and is especially useful in high-performance or real-time applications like games or simulations.
