@@ -63,7 +63,7 @@ public static class ArenaMonitor
         foreach (var kvp in liveArenas)
         {
             int id = kvp.Key;
-            ArenaAllocator arena = kvp.Value;
+            ArenaAllocator arena = liveArenas[id];
             float wasteRatio = arena.GetOverAlignment() / (float)arena.GetCapacity();
 
             summary += $"Arena {id} Data\n ------------\n" +

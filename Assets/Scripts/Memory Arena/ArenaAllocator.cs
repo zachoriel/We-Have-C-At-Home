@@ -27,7 +27,7 @@ public unsafe struct ArenaAllocator : IDisposable
         totalAlignmentPadding = 0;
         this.allocator = allocator;
         basePtr = (byte*)UnsafeUtility.Malloc(capacity, arenaAlignment, allocator);
-        ArenaLog.Log(this, $"Allocated {capacity} bytes.", ArenaLog.Level.Success);
+        ArenaLog.Log(this, $"Arena ID {id}: Allocated {capacity} bytes.", ArenaLog.Level.Success);
     }
 
     public void* Allocate(int sizeInBytes, int alignment = 16, string tag = "")
@@ -37,27 +37,29 @@ public unsafe struct ArenaAllocator : IDisposable
             return null;
         }
 
-        long offsetBeforeAlignment = offset;
         long alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
-        long remaining = capacity - alignedOffset;
-        if (alignedOffset + sizeInBytes > capacity)
+        long newOffset = alignedOffset + sizeInBytes;
+
+        int alignmentPadding = (int)(alignedOffset - offset); // Wasted bytes
+
+        if (newOffset > capacity)
         {
-            ArenaLog.Log(this, $"Out of memory! Requested {sizeInBytes} bytes at aligned offset {alignedOffset}, but only {remaining} bytes remain.",
+            long remaining = capacity - offset;
+            ArenaLog.Log(this, $"Arena ID {id}: Out of memory! Requested {sizeInBytes} bytes at aligned offset {alignedOffset}, but only {remaining} bytes remain.",
                 ArenaLog.Level.Error);
             return null;
         }
 
         void* ptr = basePtr + alignedOffset;
-        offset = (int)(alignedOffset + sizeInBytes);
+        offset = (int)newOffset;
 
-        int alignmentPadding = (int)(alignedOffset - offsetBeforeAlignment);
-
-        ArenaLog.Log(this, $"Allocated {sizeInBytes} bytes at offset {alignedOffset}. (Next offset: {offset}).", ArenaLog.Level.Success);
+        ArenaLog.Log(this, $"Arena ID {id}: Allocated {sizeInBytes} bytes at offset {alignedOffset}. (Next offset: {offset}).", ArenaLog.Level.Success);
 
         if (ArenaConfig.TrackAlignmentLoss)
         {
             totalAlignmentPadding += alignmentPadding;
         }
+
         ArenaMonitor.RecordAllocation(this, (int)alignedOffset, sizeInBytes, alignment, alignmentPadding, tag);
 
         return ptr;
@@ -72,7 +74,7 @@ public unsafe struct ArenaAllocator : IDisposable
 
     public void Reset()
     {
-        ArenaLog.Log(this, "Resetting offset to 0.", ArenaLog.Level.Success);
+        ArenaLog.Log(this, $"Arena ID {id}: Resetting offset to 0.", ArenaLog.Level.Success);
         offset = 0;
         totalAlignmentPadding = 0;
 
@@ -85,7 +87,7 @@ public unsafe struct ArenaAllocator : IDisposable
         {
             UnsafeUtility.Free(basePtr, allocator);
             basePtr = null;
-            ArenaLog.Log(this, $"Freed {offset} bytes of arena memory.", ArenaLog.Level.Success);
+            ArenaLog.Log(this, $"Arena ID {id}: Freed {offset} bytes of arena memory.", ArenaLog.Level.Success);
             offset = 0;
             totalAlignmentPadding = 0;
             ArenaMonitor.ClearArenaRecords(this.GetID());
