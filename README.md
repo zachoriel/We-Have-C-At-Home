@@ -55,7 +55,7 @@ A memory arena is a low-level memory management technique where a large block of
 **Out of Memory Unit Test Output**:\
 ![UnitTestOutput](https://github.com/user-attachments/assets/c00b597a-73bb-40ab-8c71-5b9ca71c0d5d)
 
-**Alignment Padding Tracker Test Output**:\
+**Waste Tracker Test Output**:\
 ![UnitTestOutputLog](https://github.com/user-attachments/assets/af972bb8-3869-436b-868a-8ae1f716984f)
 
 ## Code Examples
