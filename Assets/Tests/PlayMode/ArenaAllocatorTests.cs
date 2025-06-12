@@ -167,10 +167,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_Add_Succeeds()
+    public unsafe void ArenaList_Add_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 8, "IntList");
+        var list = new ArenaList<int>(&arena, 8, "IntList");
 
         list.Add(42);
         list.Add(99);
@@ -181,10 +181,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_Add_BeyondCapacity()
+    public unsafe void ArenaList_Add_BeyondCapacity()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 1, "IntList");
+        var list = new ArenaList<int>(&arena, 1, "IntList");
 
         list.Add(25);
 
@@ -203,10 +203,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_AddMultiple_Succeeds()
+    public unsafe void ArenaList_AddMultiple_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 8, "IntList");
+        var list = new ArenaList<int>(&arena, 8, "IntList");
 
         var source = new int[] { 4, 5, 6 };
         list.AddMultiple(source);
@@ -218,10 +218,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_AddMultiple_BeyondCapacity()
+    public unsafe void ArenaList_AddMultiple_BeyondCapacity()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 1, "IntList");
+        var list = new ArenaList<int>(&arena, 1, "IntList");
 
         list.Add(25);
 
@@ -241,10 +241,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_Indexer_IndexOutOfBounds()
+    public unsafe void ArenaList_Indexer_IndexOutOfBounds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 8, "IntList");
+        var list = new ArenaList<int>(&arena, 8, "IntList");
 
         list.Add(12);
 
@@ -263,10 +263,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_Clear_Succeeds()
+    public unsafe void ArenaList_Clear_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 5, "IntList");
+        var list = new ArenaList<int>(&arena, 5, "IntList");
 
         list.Add(1);
         list.Add(2);
@@ -282,10 +282,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_RemoveAt_Succeeds()
+    public unsafe void ArenaList_RemoveAt_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 5, "IntList");
+        var list = new ArenaList<int>(&arena, 5, "IntList");
 
         list.Add(1);
         list.Add(2);
@@ -317,10 +317,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_RemoveAt_EmptyList()
+    public unsafe void ArenaList_RemoveAt_EmptyList()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 5, "IntList");
+        var list = new ArenaList<int>(&arena, 5, "IntList");
 
         bool threw = false;
         try
@@ -337,10 +337,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_RemoveAt_IndexOutOfBounds()
+    public unsafe void ArenaList_RemoveAt_IndexOutOfBounds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 3, "IntList");
+        var list = new ArenaList<int>(&arena, 3, "IntList");
 
         list.Add(12);
 
@@ -359,10 +359,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_InsertAt_Succeeds()
+    public unsafe void ArenaList_InsertAt_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 8, "IntList");
+        var list = new ArenaList<int>(&arena, 8, "IntList");
 
         list.Add(1);
         list.Add(2);
@@ -389,10 +389,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_InsertAt_IndexOutOfBounds()
+    public unsafe void ArenaList_InsertAt_IndexOutOfBounds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 8, "IntList");
+        var list = new ArenaList<int>(&arena, 8, "IntList");
 
         list.Add(12);
 
@@ -411,10 +411,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_InsertAt_BeyondCapacity()
+    public unsafe void ArenaList_InsertAt_BeyondCapacity()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 1, "IntList");
+        var list = new ArenaList<int>(&arena, 1, "IntList");
 
         list.Add(25);
 
@@ -433,10 +433,10 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_ToArray_Succeeds()
+    public unsafe void ArenaList_ToArray_Succeeds()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 3, "IntList");
+        var list = new ArenaList<int>(&arena, 3, "IntList");
 
         list.Add(1);
         list.Add(2);
@@ -451,21 +451,21 @@ public class ArenaAllocatorTests
     }
 
     [Test]
-    public void ArenaList_ToArray_Empty()
+    public unsafe void ArenaList_ToArray_Empty()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 3, "IntList");
+        var list = new ArenaList<int>(&arena, 3, "IntList");
 
-        ArenaLog.ExpectLog(LogType.Warning, "Count is 0");
+        ArenaLog.ExpectLog(LogType.Warning, "length is 0");
         int[] testArray = list.ToArray();
         Assert.AreEqual(0, testArray.Length);
     }
 
     [Test]
-    public void ArenaList_Enumerator_IteratesCorrectly()
+    public unsafe void ArenaList_Enumerator_IteratesCorrectly()
     {
         var arena = liveArenas[0];
-        var list = new ArenaList<int>(ref arena, 3, "IntList");
+        var list = new ArenaList<int>(&arena, 3, "IntList");
 
         list.Add(5);
         list.Add(15);

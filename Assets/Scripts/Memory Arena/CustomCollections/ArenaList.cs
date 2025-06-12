@@ -2,16 +2,29 @@ using System;
 using System.Diagnostics;
 using Unity.Collections.LowLevel.Unsafe;
 
+/// <summary>
+/// An unmanaged container that hooks-into an arena allocator for high-performance collections.
+/// This list does not own its memory and does not support manual disposal. Its backing memory is freed
+/// when the parent ArenaAllocator is reset or disposed. Use this in place of NativeList if you want
+/// integration with memory arenas and automatic disposal, and are okay with fixed capacities.
+/// </summary>
+/// <typeparam name="T">Only unmanaged value types are supported (e.g. int, float, Vector3, MyUnmanagedStruct).</typeparam>
 [DebuggerDisplay("Length = {length}, Capacity = {capacity}")]
-public unsafe ref struct ArenaList<T> where T : unmanaged
+public unsafe struct ArenaList<T> where T : unmanaged
 {
     private void* data;
     private int count;
     private int capacity;
 
-    public ArenaList(ref ArenaAllocator allocator, int capacity, string tag = "ArenaList")
+    public ArenaList(ArenaAllocator* arena, int capacity, string tag = "ArenaList")
     {
-        data = allocator.SmartAllocate<T>(tag);
+        // Slightly redundant, but UnsafeUtility is stricter than C#'s 'unmanaged', so I think the extra guardrail is worth it.
+        if (!UnsafeUtility.IsUnmanaged<T>())
+        {
+            throw new InvalidOperationException($"ArenaList<T> requires T to be unmanaged. Type {typeof(T)} is not.");
+        }
+
+        data = arena->SmartAllocate<T>(tag);
 
         if (data == null)
         {
@@ -21,7 +34,7 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
         this.count = 0;
         this.capacity = capacity;
 
-        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList in arena {allocator.GetID()}. Capacity: {capacity}, Length: {count}, Tag: {tag}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList in arena {arena->GetID()}. Capacity: {capacity}, Length: {count}, Tag: {tag}.", ArenaLog.Level.Success);
     }
 
     public int Count => count;
