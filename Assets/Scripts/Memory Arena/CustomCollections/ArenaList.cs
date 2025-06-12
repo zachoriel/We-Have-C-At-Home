@@ -6,7 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 public unsafe ref struct ArenaList<T> where T : unmanaged
 {
     private void* data;
-    private int length;
+    private int count;
     private int capacity;
 
     public ArenaList(ref ArenaAllocator allocator, int capacity, string tag = "ArenaList")
@@ -18,46 +18,46 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
             throw new InvalidOperationException("Arena allocation failed for ArenaList.");
         }
 
-        this.length = 0;
+        this.count = 0;
         this.capacity = capacity;
 
-        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList in arena {allocator.GetID()}. Capacity: {capacity}, Length: {length}, Tag: {tag}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList in arena {allocator.GetID()}. Capacity: {capacity}, Length: {count}, Tag: {tag}.", ArenaLog.Level.Success);
     }
 
-    public int Length => length;
+    public int Count => count;
     public int Capacity => capacity;
 
     public void Add(T value)
     {
-        if (length >= capacity)
+        if (count >= capacity)
         {
-            throw new IndexOutOfRangeException($"ArenaList capacity exceeded: {length + 1} / {capacity}");
+            throw new IndexOutOfRangeException($"ArenaList capacity exceeded: {count + 1} / {capacity}");
         }
 
-        UnsafeUtility.WriteArrayElement(data, length, value);
-        length++;
+        UnsafeUtility.WriteArrayElement(data, count, value);
+        count++;
 
-        ArenaLog.Log("ArenaList", $"New value {value} added to list, new length: {length}, old length: {length - 1}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"New value {value} added to list, new length: {count}, old length: {count - 1}.", ArenaLog.Level.Success);
     }
 
     public void AddMultiple(ReadOnlySpan<T> values)
     {
-        if (length + values.Length > capacity)
+        if (count + values.Length > capacity)
         {
             throw new IndexOutOfRangeException("Not enough room in ArenaList to AddMultiple.");
         }
 
         for (int i = 0; i < values.Length; i++)
         {
-            UnsafeUtility.WriteArrayElement(data, length + i, values[i]);
+            UnsafeUtility.WriteArrayElement(data, count + i, values[i]);
         }
 
-        length += values.Length;
+        count += values.Length;
     }
 
     public void RemoveAt(int index = -1)
     {
-        if (length == 0)
+        if (count == 0)
         {
             throw new InvalidOperationException("Cannot remove from an empty ArenaList.");
         }
@@ -65,62 +65,62 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
         // If index is not provided or is -1, remove the last element
         if (index == -1)
         {
-            index = length - 1;
+            index = count - 1;
         }
 
-        if (index < 0 || index >= length)
+        if (index < 0 || index >= count)
         {
             throw new IndexOutOfRangeException();
         }
 
         var valueToRemove = UnsafeUtility.ReadArrayElement<T>(data, index);
         // Shift elements left.
-        for (int i = index; i < length - 1; i++)
+        for (int i = index; i < count - 1; i++)
         {
             var next = UnsafeUtility.ReadArrayElement<T>(data, i + 1);
             UnsafeUtility.WriteArrayElement(data, i, next);
         }
-        length--;
+        count--;
 
-        ArenaLog.Log("ArenaList", $"Value {valueToRemove} removed from ArenaList. New length is: {length}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"Value {valueToRemove} removed from ArenaList. New length is: {count}.", ArenaLog.Level.Success);
     }
 
     public void InsertAt(int index, T value)
     {
-        if (index < 0 || index > length)
+        if (index < 0 || index > count)
         {
             throw new IndexOutOfRangeException();
         }
-        if (length >= capacity)
+        if (count >= capacity)
         {
-            throw new IndexOutOfRangeException($"ArenaList capacity exceeded: {length + 1} / {capacity}");
+            throw new IndexOutOfRangeException($"ArenaList capacity exceeded: {count + 1} / {capacity}");
         }
 
         // Shift elements right.
-        for (int i = length; i > index; i--)
+        for (int i = count; i > index; i--)
         {
             var prev = UnsafeUtility.ReadArrayElement<T>(data, i - 1);
             UnsafeUtility.WriteArrayElement(data, i, prev);
         }
 
         UnsafeUtility.WriteArrayElement(data, index, value);
-        length++;
+        count++;
 
-        ArenaLog.Log("ArenaList", $"Value {value} added to ArenaList at index {index}. New length is: {length}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"Value {value} added to ArenaList at index {index}. New length is: {count}.", ArenaLog.Level.Success);
     }
 
     public void Clear()
     {
-        length = 0;
+        count = 0;
 
-        ArenaLog.Log("ArenaList", $"ArenaList cleared, new length: {length}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"ArenaList cleared, new length: {count}.", ArenaLog.Level.Success);
     }
 
     public T this[int index]
     {
         get
         {
-            if (index < 0 || index >= length)
+            if (index < 0 || index >= count)
             {
                 throw new IndexOutOfRangeException();
             }
@@ -131,7 +131,7 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
         }
         set
         {
-            if (index < 0 || index >= length)
+            if (index < 0 || index >= count)
             {
                 throw new IndexOutOfRangeException();
             }
@@ -146,8 +146,8 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
 
     public T[] ToArray()
     {
-        var array = new T[length];
-        for (int i = 0; i < length; i++)
+        var array = new T[count];
+        for (int i = 0; i < count; i++)
         {
             array[i] = UnsafeUtility.ReadArrayElement<T>(data, i);
         }
@@ -179,7 +179,7 @@ public unsafe ref struct ArenaList<T> where T : unmanaged
         public bool MoveNext()
         {
             index++;
-            return index < list.length;
+            return index < list.count;
         }
 
         public T Current => list[index];

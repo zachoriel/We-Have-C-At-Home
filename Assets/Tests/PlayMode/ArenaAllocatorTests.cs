@@ -175,7 +175,7 @@ public class ArenaAllocatorTests
         list.Add(42);
         list.Add(99);
 
-        Assert.AreEqual(2, list.Length);
+        Assert.AreEqual(2, list.Count);
         Assert.AreEqual(42, list[0]);
         Assert.AreEqual(99, list[1]);
     }
@@ -199,7 +199,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -211,7 +211,7 @@ public class ArenaAllocatorTests
         var source = new int[] { 4, 5, 6 };
         list.AddMultiple(source);
 
-        Assert.AreEqual(3, list.Length);
+        Assert.AreEqual(3, list.Count);
         Assert.AreEqual(4, list[0]);
         Assert.AreEqual(5, list[1]);
         Assert.AreEqual(6, list[2]);
@@ -237,7 +237,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -259,7 +259,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -274,11 +274,11 @@ public class ArenaAllocatorTests
         list.Add(4);
         list.Add(5);
 
-        Assert.AreEqual(5, list.Length);
+        Assert.AreEqual(5, list.Count);
 
         list.Clear();
 
-        Assert.AreEqual(0, list.Length);
+        Assert.AreEqual(0, list.Count);
     }
 
     [Test]
@@ -293,7 +293,7 @@ public class ArenaAllocatorTests
         list.Add(4);
         list.Add(5);
 
-        Assert.AreEqual(5, list.Length);
+        Assert.AreEqual(5, list.Count);
         Assert.AreEqual(1, list[0]);
         Assert.AreEqual(2, list[1]);
         Assert.AreEqual(3, list[2]);
@@ -302,7 +302,7 @@ public class ArenaAllocatorTests
 
         list.RemoveAt(2);
 
-        Assert.AreEqual(4, list.Length);
+        Assert.AreEqual(4, list.Count);
         Assert.AreEqual(1, list[0]);
         Assert.AreEqual(2, list[1]);
         Assert.AreEqual(4, list[2]);
@@ -310,7 +310,7 @@ public class ArenaAllocatorTests
 
         list.RemoveAt();
 
-        Assert.AreEqual(3, list.Length);
+        Assert.AreEqual(3, list.Count);
         Assert.AreEqual(1, list[0]);
         Assert.AreEqual(2, list[1]);
         Assert.AreEqual(4, list[2]);
@@ -333,7 +333,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected InvalidOperationException to be thrown.");
-        Assert.AreEqual(0, list.Length, "Length should be 0.");
+        Assert.AreEqual(0, list.Count, "Count should be 0.");
     }
 
     [Test]
@@ -355,7 +355,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -370,7 +370,7 @@ public class ArenaAllocatorTests
         list.Add(5);
         list.Add(6);
 
-        Assert.AreEqual(5, list.Length);
+        Assert.AreEqual(5, list.Count);
         Assert.AreEqual(1, list[0]);
         Assert.AreEqual(2, list[1]);
         Assert.AreEqual(4, list[2]);
@@ -379,7 +379,7 @@ public class ArenaAllocatorTests
 
         list.InsertAt(2, 3);
 
-        Assert.AreEqual(6, list.Length);
+        Assert.AreEqual(6, list.Count);
         Assert.AreEqual(1, list[0]);
         Assert.AreEqual(2, list[1]);
         Assert.AreEqual(3, list[2]);
@@ -407,7 +407,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -429,7 +429,7 @@ public class ArenaAllocatorTests
         }
 
         Assert.IsTrue(threw, "Expected IndexOutOfRangeException to be thrown.");
-        Assert.AreEqual(1, list.Length, "Length should remain unchanged.");
+        Assert.AreEqual(1, list.Count, "Count should remain unchanged.");
     }
 
     [Test]
@@ -444,7 +444,7 @@ public class ArenaAllocatorTests
 
         int[] testArray = list.ToArray();
 
-        Assert.AreEqual(list.Length, testArray.Length);
+        Assert.AreEqual(list.Count, testArray.Length);
         Assert.AreEqual(1, testArray[0]);
         Assert.AreEqual(2, testArray[1]);
         Assert.AreEqual(3, testArray[2]);
@@ -456,7 +456,7 @@ public class ArenaAllocatorTests
         var arena = liveArenas[0];
         var list = new ArenaList<int>(ref arena, 3, "IntList");
 
-        ArenaLog.ExpectLog(LogType.Warning, "length is 0");
+        ArenaLog.ExpectLog(LogType.Warning, "Count is 0");
         int[] testArray = list.ToArray();
         Assert.AreEqual(0, testArray.Length);
     }
@@ -485,7 +485,7 @@ public class ArenaAllocatorTests
 
         collected.Clear();
 
-        for (int i = 0; i < list.Length; i++)
+        for (int i = 0; i < list.Count; i++)
         {
             collected.Add(list[i]);
         }
