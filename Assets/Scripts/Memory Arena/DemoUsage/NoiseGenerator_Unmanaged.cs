@@ -13,7 +13,7 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
     [SerializeField] private int width = 256;
     [SerializeField] private int height = 256;
     [SerializeField] private Material targetMaterial;
-    [SerializeField] private bool useBurst;
+    [SerializeField] private bool useBurst = true;
 
     private ArenaAllocator* arena;
     private ArenaArray<float> buffer;
