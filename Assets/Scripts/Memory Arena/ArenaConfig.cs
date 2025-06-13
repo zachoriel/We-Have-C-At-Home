@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static class ArenaConfig
 {
     /// <summary>
@@ -14,4 +16,14 @@ public static class ArenaConfig
     /// Enable or disable tracking of over-alignment bytes.
     /// </summary>
     public static bool TrackAlignmentLoss = true;
+
+    /// <summary>
+    /// The key that exports performance benchmark results.
+    /// </summary>
+    public static KeyCode benchmarkExportKey = KeyCode.B;
+
+    /// <summary>
+    /// Where to store output logs & benchmark results.
+    /// </summary>
+    public static string LoggingPath = Application.persistentDataPath;
 }
