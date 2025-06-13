@@ -12,7 +12,7 @@ using Unity.Collections.LowLevel.Unsafe;
 [DebuggerDisplay("Length = {length}, Capacity = {capacity}")]
 public unsafe struct ArenaList<T> where T : unmanaged
 {
-    private void* data;
+    [NativeDisableUnsafePtrRestriction] private void* data;
     private int count;
     private int capacity;
 

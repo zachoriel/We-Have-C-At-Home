@@ -10,7 +10,7 @@ using Unity.Collections.LowLevel.Unsafe;
 [DebuggerDisplay("Length = {length}")]
 public unsafe struct ArenaArray<T> where T : unmanaged
 {
-    private void* data;
+    [NativeDisableUnsafePtrRestriction] private void* data;
     private int length;
 
     public ArenaArray(ArenaAllocator* arena, int length, string tag = "ArenaArray")
