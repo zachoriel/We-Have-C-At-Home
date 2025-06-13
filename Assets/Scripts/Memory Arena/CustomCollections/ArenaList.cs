@@ -24,7 +24,9 @@ public unsafe struct ArenaList<T> where T : unmanaged
             throw new InvalidOperationException($"ArenaList<T> requires T to be unmanaged. Type {typeof(T)} is not.");
         }
 
-        data = arena->SmartAllocate<T>(tag);
+        int totalSize = UnsafeUtility.SizeOf<T>() * capacity;
+        int alignment = ArenaUtil.GetNextPowerOfTwo(UnsafeUtility.SizeOf<T>());
+        data = arena->Allocate(totalSize, alignment, tag);
 
         if (data == null)
         {
@@ -34,11 +36,13 @@ public unsafe struct ArenaList<T> where T : unmanaged
         this.count = 0;
         this.capacity = capacity;
 
-        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList in arena {arena->GetID()}. Capacity: {capacity}, Length: {count}, Tag: {tag}.", ArenaLog.Level.Success);
+        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList of type {typeof(T)} (Capacity: {capacity}, Size: {totalSize}, Alignment: {alignment}, Tag: {tag}) " +
+            $"in arena {arena->GetID()}.", ArenaLog.Level.Success);
     }
 
     public int Count => count;
     public int Capacity => capacity;
+    public void* GetRawPtr() => data;
 
     public void Add(T value)
     {
@@ -139,7 +143,7 @@ public unsafe struct ArenaList<T> where T : unmanaged
             }
 
             var val = UnsafeUtility.ReadArrayElement<T>(data, index);
-            ArenaLog.Log("ArenaList", $"ArenaList index {index} value is: {val}", ArenaLog.Level.Success);
+            ArenaLog.Log("ArenaList", $"Index {index} read value: {val}", ArenaLog.Level.Success);
             return val;
         }
         set
@@ -151,7 +155,7 @@ public unsafe struct ArenaList<T> where T : unmanaged
 
             UnsafeUtility.WriteArrayElement(data, index, value);
 
-            ArenaLog.Log("ArenaList", $"ArenaList index {index} set to {value}.", ArenaLog.Level.Success);
+            ArenaLog.Log("ArenaList", $"Index {index} set to value: {value}.", ArenaLog.Level.Success);
         }
     }
 
@@ -171,12 +175,28 @@ public unsafe struct ArenaList<T> where T : unmanaged
         }
         else
         {
-            ArenaLog.Log("ArenaList", $"Converted ArenaList to array.", ArenaLog.Level.Success);
+            ArenaLog.Log("ArenaList", $"Converted ArenaList to array. Length: {count}.", ArenaLog.Level.Success);
         }
 
         return array;
     }
 
+    public ArenaArray<T> ToArenaArray(ArenaAllocator* arena, string tag = "ToArenaArray")
+    {
+        var arenaArray = new ArenaArray<T>(arena, count, tag);
+        for (int i = 0; i < count; i++)
+        {
+            arenaArray[i] = UnsafeUtility.ReadArrayElement<T>(data, i);
+        }
+
+        ArenaLog.Log("ArenaList", $"Converted ArenaList to ArenaArray. Length: {count}.", ArenaLog.Level.Success);
+
+        return arenaArray;
+    }
+
+    /// <summary>
+    /// WARNING: Incompatible with Burst or class usage. See GetBurstSafeEnumerator() for that functionality.
+    /// </summary>
     public Enumerator GetEnumerator() => new Enumerator(this);
     public ref struct Enumerator
     {
@@ -186,7 +206,7 @@ public unsafe struct ArenaList<T> where T : unmanaged
         public Enumerator(ArenaList<T> list)
         {
             this.list = list;
-            this.index = -1;
+            index = -1;
         }
 
         public bool MoveNext()
@@ -196,5 +216,27 @@ public unsafe struct ArenaList<T> where T : unmanaged
         }
 
         public T Current => list[index];
+    }
+
+    /// <summary>
+    /// WARNING: Incompatible with for/foreach — requires manual iteration (e.g. var enumerator = myList.GetBurstSafeEnumerator(); then:
+    /// while (enumerator.MoveNext()) { ... }).
+    /// </summary>
+    public BurstSafeEnumerator GetBurstSafeEnumerator() { return new BurstSafeEnumerator(data, count); }
+    public struct BurstSafeEnumerator
+    {
+        private void* data;
+        private int count;
+        private int index;
+
+        public BurstSafeEnumerator(void* data, int count)
+        {
+            this.data = data;
+            this.count = count;
+            index = -1;
+        }
+
+        public bool MoveNext() => ++index < count;
+        public T Current => UnsafeUtility.ReadArrayElement<T>(data, index);
     }
 }
