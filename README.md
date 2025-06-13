@@ -1,4 +1,4 @@
-# Memory Arena for Unity: Unsafe Memory Handled Safely, Minimal Garbage Collection
+# Memory Arena for Unity: Unsafe Memory Handled Safely, Zero Garbage Collection
 
 This is a high-performance memory management toolkit for Unity, inspired by [git-amend's excellent primer on memory arenas](https://www.youtube.com/watch?v=qIJxPAJ3R-I). It began as an experiment in unsafe code and evolved into a full-featured arena-based allocator with custom containers, tracking, logging, and benchmark tooling — all built to answer a single question:
 
@@ -41,7 +41,7 @@ This simulation represents:
 
 ## Benchmark Experiment - Results
 
-Results were exported to CSV, aggregated, and visualized to evaluate both **performance speed** and **memory pressure** over time:
+The experiment resulted in 2,000 rows of CSV data. These results were aggregated and visualized to evaluate both **performance speed** and **memory pressure** over time:
 
 | Strategy                     | Avg Time (ms) | Avg Memory (MB)  | GC Collections|
 |------------------------------|---------------|------------------|---------------|
