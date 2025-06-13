@@ -89,7 +89,7 @@ public class NoiseGenerator_Managed : MonoBehaviour
             ArenaLog.Log("NoiseGenerator_Managed", "All benchmark cycles complete; ready to export.", ArenaLog.Level.Success);
         }
 
-        if (Input.GetKeyDown(ArenaConfig.BenchmarkExportKey))
+        if (benchmarkComplete && Input.GetKeyDown(ArenaConfig.BenchmarkExportKey))
         {
             ExportBenchmarksToCSV();
         }
@@ -103,6 +103,7 @@ public class NoiseGenerator_Managed : MonoBehaviour
             int y = index / width;
 
             uint hash = (uint)(math.hash(new int2(x, y)) + (uint)(Time.time * 1000f));
+            if (hash == 0) { hash = GuaranteeHashNonZero(hash, x, y); }
             Unity.Mathematics.Random rand = new Unity.Mathematics.Random(hash);
             buffer[index] = rand.NextFloat();
         }
@@ -159,6 +160,19 @@ public class NoiseGenerator_Managed : MonoBehaviour
         ArenaLog.Log("NoiseGenerator_Managed", $"Benchmark results exported to {path}.", ArenaLog.Level.Success);
     }
 
+    /// <summary>
+    /// In the extremely rare edge case that hash wraps around to 0 (this actually happened in my initial testing),
+    /// fallback to a secondary deterministic hash. If the entropy Gods frown upon you and return that as 0 too,
+    /// just give hash an easily auditable non-zero constant.
+    /// </summary>
+    private static uint GuaranteeHashNonZero(uint hash, int x, int y)
+    {
+        hash = (uint)math.hash(new int2(x + 1337, y + 7331));
+        if (hash == 0) { hash = 0xBEEFCAFEu; } // Arbitrary non-zero sentinel.
+
+        return hash;
+    }
+
     [BurstCompile]
     public struct GenerateManagedNoiseJob : IJobParallelFor
     {
@@ -173,6 +187,7 @@ public class NoiseGenerator_Managed : MonoBehaviour
             int y = index / width;
 
             uint hash = (uint)(math.hash(new int2(x, y)) + (uint)(seed * 1000f));
+            if (hash == 0) { hash = GuaranteeHashNonZero(hash, x, y); }
             Unity.Mathematics.Random rand = new Unity.Mathematics.Random(hash);
             buffer[index] = rand.NextFloat();
         }
