@@ -28,11 +28,11 @@ To test real-world impact, I implemented a sustained procedural workload that mi
 
 Each memory strategy was tested under identical conditions:
 - Total allocations: 500 (one per cycle, sustained)
-- Buffers: float[] (managed) or ArenaArray<float> (arena)
+- Buffers: `float[]` (managed) or `ArenaArray<float>` (arena)
 - Burst: Enabled or disabled via toggle
-- GC tracking: GC.GetTotalMemory() and GC.CollectionCount()
+- GC tracking: `GC.GetTotalMemory()` and `GC.CollectionCount()`
 - Timing: Frame-by-frame measurements using Time.realtimeSinceStartup
-- Reset behavior: Arena memory was explicitly Reset() after each cycle; managed memory was left to accumulate (as it would in a standard Unity framework).
+- Reset behavior: Arena memory was explicitly `Reset()` after each cycle; managed memory was left to accumulate (as it would in a standard Unity framework).
 
 This simulation represents:
 - Consistent short-lived allocation churn
@@ -107,8 +107,8 @@ Ideal use cases include:
   - Manual: allows custom alignment setting & size calculation
   - Smart: automatically sets alignment to the next power of 2 greater than or equal to the size of the allocation (minimizes waste)
 - **ArenaArray<T>** and **ArenaList<T>** containers
-  - ArenaArray<T>: A Burst-compatible, fixed-length array backed by arena-allocated unmanaged memory. Like NativeArray<T>, but without ownership or disposal — memory is released when the parent ArenaAllocator is disposed or reset.
-  - ArenaList<T>: A Burst-compatible, unmanaged container that hooks into an arena allocator for high-performance collections. Like ArenaArray, this structure does not own its memory and is managed by ArenaAllocator's disposal or reset. Use this in place of NativeList if you want integration with memory arenas and automatic disposal, and are okay with fixed            capacities.
+  - ArenaArray<T>: A Burst-compatible, fixed-length array backed by arena-allocated unmanaged memory. Like `NativeArray<T>`, but without ownership or disposal — memory is released when the parent `ArenaAllocator` is disposed or reset.
+  - ArenaList<T>: A Burst-compatible, unmanaged container that hooks into an arena allocator for high-performance collections. Like `ArenaArray<T>`, this structure does not own its memory and is managed by `ArenaAllocator`'s disposal or reset. Use this in place of `NativeList<T>` if you want integration with memory arenas and automatic disposal, and are okay with      fixed capacities.
 - Custom logging with color coding, source labeling, timestamps, and export
 - Togglable monitoring system with per-arena allocation tracking (offsets, sizes, tags, over-alignment)
 - Multiple arena support with ID-based isolation
