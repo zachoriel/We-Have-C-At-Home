@@ -65,7 +65,7 @@ public static class ArenaLog
     {
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         string filename = $"ArenaLog_{timestamp}.txt";
-        string path = Path.Combine(Application.persistentDataPath, filename);
+        string path = Path.Combine(ArenaConfig.LoggingPath, filename);
         try
         {
             File.WriteAllLines(path, OutputLog);
