@@ -1,4 +1,4 @@
-# Memory Arena for Unity: Unsafe Memory Handled Safely, Zero Garbage Collection
+# Memory Arena for Unity: Unsafe Memory Handled Safely, Minimal Garbage Collection
 
 This is a high-performance memory management toolkit for Unity, inspired by [git-amend's excellent primer on memory arenas](https://www.youtube.com/watch?v=qIJxPAJ3R-I). It began as an experiment in unsafe code and evolved into a full-featured arena-based allocator with custom containers, tracking, logging, and benchmark tooling — all built to answer a single question:
 
@@ -14,6 +14,10 @@ But here's a hint:
 ## What Is a Memory Arena?
 
 A memory arena is a low-level memory management technique where a large block of memory is allocated up front, and then smaller allocations are made from that block manually. This eliminates per-allocation overhead, enables predictable performance, and is especially useful in high-performance or real-time applications like games or simulations.
+
+## What is Burst?
+
+Burst refers to the "Burst compiler" — a Unity package that works with Unity's Job System to execute highly-optimized C# code. It adds a small amount of code complexity to your project, but yields significant speed gains in execution time. My memory arena is designed to be used alongside Burst/Jobs, but it is not a hard requirement. The benchmarks shown here include tests both with and without Burst, for empirical comparison of performance benefit.
 
 ## Why Use a Memory Arena in Unity?
 
@@ -38,22 +42,27 @@ Each memory strategy was tested under identical conditions:
 - GC tracking: `GC.GetTotalMemory()` and `GC.CollectionCount()`
 - Timing: Frame-by-frame measurements using Time.realtimeSinceStartup
 - Reset behavior: Arena memory was explicitly `Reset()` after each cycle; managed memory was left to accumulate (as it would in a standard Unity framework).
+- Environment: Unity Editor, with custom logging enabled for ArenaAllocator (note that this introduces some artificial overhead).
 
 This simulation represents:
 - Consistent short-lived allocation churn
 - Heavy per-frame compute on large buffers
 - Controlled memory lifecycle for comparison
 
+I then ran the experiment 10 more times to check for deviation. Below are the results:
+
 ## Benchmark Experiment - Results
+
+### First Test Run (control group)
 
 The experiment resulted in 2,000 rows of CSV data. These results were aggregated and visualized to evaluate both **performance speed** and **memory pressure** over time:
 
-| Strategy                     | Avg Time (ms) | Avg Memory (MB)  | GC Collections|
-|------------------------------|---------------|------------------|---------------|
-| Managed Memory + Burst       | ~4.27ms       | ~1,689 MB        | 55            |
-| Managed Memory + No Burst    | ~55.92ms      | ~1,682 MB        | 58            |
-| Arena Memory + No Burst      | ~59.31ms      | ~673 MB          | 2             |
-| Arena Memory + Burst         | ~1.25ms       | ~675 MB          | 0             |
+| Strategy                       | Avg Time (ms)   | Avg Memory (MB)    | GC Collections  |
+|:------------------------------:|:---------------:|:------------------:|:---------------:|
+| Managed Memory + Burst         | ~4.27ms         | ~1,689 MB          | 55              |
+| Managed Memory + No Burst      | ~55.92ms        | ~1,682 MB          | 58              |
+| Arena Memory + No Burst        | ~59.31ms        | ~673 MB            | 2               |
+| Arena Memory + Burst           | ~1.25ms         | ~675 MB            | 0               |
 
 ### Key Takeaways
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
@@ -68,9 +77,34 @@ And because visual data is fun, here are some charts and graphs of the above fin
 ![MemoryUsageByStrategyGraph](https://github.com/user-attachments/assets/200df555-e3f4-40e9-941b-4c186fa9a9ca)
 ![GCsByStrategyGraph](https://github.com/user-attachments/assets/ec49c806-97d3-4c3e-aea5-43dd6ac24979)
 
+### Additional 10 Test Runs
+
+These tests resulted in a combined 20,000 rows of CSV data, which were aggregated and visualized with the same metrics as the control group:
+
+| Strategy                       | Avg Time (ms) Per Run   | Avg Memory (MB) Per Run   | Avg GC Collections Per Run             |
+|:------------------------------:|:-----------------------:|:-------------------------:|:--------------------------------------:|
+| Managed Memory + Burst         | ~3.84ms                 | ~1,651 MB                 | 48                                     |
+| Managed Memory + No Burst      | ~54.25ms                | ~1,648 MB                 | 55                                     |
+| Arena Memory + No Burst        | ~59.75ms                | ~629 MB                   | 0.1 (1 GC call across all runs)        |
+| Arena Memory + Burst           | ~1.27ms                 | ~630 MB                   | 0.3 (3 GC calls across all runs)       |
+
+### Key Takeaways
+- Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental system GC, etc.
+- **Arena + Burst** remains by far the most performant system, with minor speed increases over **Managed Memory + Burst** and still ~2.6x less memory footprint.
+- **Burst** is still the heavy-lifter for raw speed gains.
+- **Arena** near-completely eliminates GC calls, resulting in steady and predictable overhead.
+- **Arena *without* Burst** introduces minor speed overhead compared to **Managed *without* Burst**. This suggests that **Arena + Burst** is the optimal workflow, but you can still yield significant memory gains with minimal ms impact without **Burst**.
+
+![AverageMillisecondsPerCycleChart_LargeDataset](https://github.com/user-attachments/assets/31403822-6865-45b4-a007-031088103357)
+<p align="center"><em>That near-flat Arena + Burst line amidst the sea of volatility that is Managed + Burst is <b>so</b> satisfying.</em></p>
+
+![MemoryUsagePerCycleChart_LargeDataset](https://github.com/user-attachments/assets/fe869077-5f6e-4cf6-a73d-5274179a3c4c)
+
+**Important Caveat**: As mentioned, these benchmarks were run in-editor with logging enabled for the ArenaAllocator (~600 log entries per test run of the Arena strategy). Real-world performance in builds and/or with logging disabled may be even faster, especially for Arena memory.
+
 ---
 
-## When Should You Use ArenaAllocator?
+## So, when Should You Use ArenaAllocator?
 
 Use it when you need **tight control over memory** or want to **avoid GC stutters** — especially in systems that allocate frequently or work with large buffers.
 
