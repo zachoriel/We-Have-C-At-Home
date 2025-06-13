@@ -151,11 +151,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a3e4f0966df354bb7aa8226c870b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 256
-  height: 256
+  width: 1024
+  height: 1024
   targetMaterial: {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
-  useBurst: 1
-  runAllBenchmarks: 1
+  allocationsPerCycle: 1
+  framesPerCycle: 5
+  totalCycles: 100
+  useBurst: 0
+  resetArenaOnCycleEnd: 1
 --- !u!64 &159612612
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -675,11 +678,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5afbec4e8e7cbc4489b6776c3c8434f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 256
-  height: 256
+  width: 1024
+  height: 1024
   targetMaterial: {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
-  useBurst: 1
-  runAllBenchmarks: 1
+  allocationsPerCycle: 1
+  framesPerCycle: 5
+  totalCycles: 100
+  useBurst: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

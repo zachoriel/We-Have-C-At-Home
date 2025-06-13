@@ -9,25 +9,27 @@ using UnityEngine;
 
 public class NoiseGenerator_Managed : MonoBehaviour
 {
-    [Header("Settings")]
+    [Header("Texture Settings")]
     [SerializeField] private int width = 1024;
     [SerializeField] private int height = 1024;
     [SerializeField] private Material targetMaterial;
-    [SerializeField] private bool useBurst = true;
-    [SerializeField] private bool runAllBenchmarks = false;
 
-    private float[] buffer;
+    [Header("Benchmark Settings")]
+    [SerializeField] private int allocationsPerCycle = 1;
+    [SerializeField] private int framesPerCycle = 5;
+    [SerializeField] private int totalCycles = 100;
+    [SerializeField] private bool useBurst = true;
+
+    private List<float[]> managedBuffers = new List<float[]>();
     private Texture2D outputTexture;
 
     private List<BenchmarkRecord> benchmarkLog = new List<BenchmarkRecord>();
-    private int benchmarkIndex = 0;
-    private string[] benchmarkSequence = { "Managed + Burst", "Managed + No Burst" };
-    private bool hasBenchmarked = false;
+    private int currentCycle = 0;
+    private int currentFrameInCycle = 0;
+    private bool benchmarkComplete = false;
 
     private void Start()
     {
-        buffer = new float[width * height];
-
         outputTexture = new Texture2D(width, height, TextureFormat.RFloat, false);
         outputTexture.filterMode = FilterMode.Point;
         targetMaterial.mainTexture = outputTexture;
@@ -35,16 +37,56 @@ public class NoiseGenerator_Managed : MonoBehaviour
 
     private void Update()
     {
-        if (runAllBenchmarks && !hasBenchmarked)
+        if (!benchmarkComplete && currentCycle < totalCycles)
         {
-            RunNextBenchmark();
-        }
-        else if (!runAllBenchmarks && !hasBenchmarked)
-        {
-            if (Input.GetKeyDown(ArenaConfig.RunBenchmarkKey))
+            currentFrameInCycle++;
+            int total = width * height;
+
+            int gcBefore = GC.CollectionCount(0);
+            float start = Time.realtimeSinceStartup;
+
+            for (int i = 0; i < allocationsPerCycle; i++)
             {
-                RunManualBenchmark();
+                float[] buffer = new float[total];
+                if (useBurst)
+                {
+                    GenerateNoiseBurst(buffer);
+                }
+                else
+                {
+                    GenerateNoiseNoBurst(buffer);
+                }
+                managedBuffers.Add(buffer);
             }
+
+            float end = Time.realtimeSinceStartup;
+            int gcAfter = GC.CollectionCount(0);
+            long memoryUsed = GC.GetTotalMemory(false);
+
+            benchmarkLog.Add(new BenchmarkRecord
+            {
+                label = useBurst ? "Managed + Burst" : "Managed + No Burst",
+                cycle = currentCycle,
+                frame = currentFrameInCycle,
+                ms = (end - start) * 1000f,
+                memoryBytes = memoryUsed,
+                gcCollections = gcAfter - gcBefore,
+                timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            });
+
+            if (currentFrameInCycle >= framesPerCycle)
+            {
+                currentCycle++;
+                currentFrameInCycle = 0;
+            }
+
+            UpdateTextureFromBuffer(managedBuffers[^1]);
+        }
+
+        if (currentCycle >= totalCycles && !benchmarkComplete)
+        {
+            benchmarkComplete = true;
+            ArenaLog.Log("NoiseGenerator_Managed", "All benchmark cycles complete; ready to export.", ArenaLog.Level.Success);
         }
 
         if (Input.GetKeyDown(ArenaConfig.BenchmarkExportKey))
@@ -53,93 +95,9 @@ public class NoiseGenerator_Managed : MonoBehaviour
         }
     }
 
-    private void RunNextBenchmark()
+    private void GenerateNoiseNoBurst(float[] buffer)
     {
-        if (benchmarkIndex >= benchmarkSequence.Length)
-        {
-            hasBenchmarked = true;
-            ArenaLog.Log($"NoiseGenerator_Managed", "Ran all benchmarks, safe to export.", ArenaLog.Level.Success);
-            return;
-        }
-
-        string label = benchmarkSequence[benchmarkIndex];
-        switch (label)
-        {
-            case "Managed + Burst":
-                RunBurstManagedVersion(label);
-                ArenaLog.Log($"NoiseGenerator_Managed", "Ran Burst benchmark", ArenaLog.Level.Success);
-                break;
-            case "Managed + No Burst":
-                RunNoBurstManagedVersion(label);
-                ArenaLog.Log($"NoiseGenerator_Managed", "Ran No Burst benchmark", ArenaLog.Level.Success);
-                break;
-        }
-
-        benchmarkIndex++;
-    }
-
-    private void RunManualBenchmark()
-    {
-        string label = useBurst ? "Managed + Burst" : "Managed + No Burst";
-
-        if (useBurst)
-        {
-            RunBurstManagedVersion(label);
-        }
-        else
-        {
-            RunNoBurstManagedVersion(label);
-        }
-
-        hasBenchmarked = true;
-        ArenaLog.Log($"NoiseGenerator_Managed", "Ran benchmark, safe to export.", ArenaLog.Level.Success);
-    }
-
-    private void RunBurstManagedVersion(string label)
-    {
-        int total = width * height;
-        int gcBefore = GC.CollectionCount(0);
-        float start = Time.realtimeSinceStartup;
-
-        NativeArray<float> nativeBuffer = new NativeArray<float>(total, Allocator.TempJob);
-
-        GenerateManagedNoiseJob job = new GenerateManagedNoiseJob
-        {
-            buffer = nativeBuffer,
-            width = width,
-            height = height,
-            seed = Time.time
-        };
-
-        JobHandle handle = job.Schedule(total, 64);
-        handle.Complete();
-
-        nativeBuffer.CopyTo(buffer);
-        nativeBuffer.Dispose();
-
-        float end = Time.realtimeSinceStartup;
-        int gcAfter = GC.CollectionCount(0);
-        long memoryUsed = GC.GetTotalMemory(false);
-
-        benchmarkLog.Add(new BenchmarkRecord
-        {
-            label = label,
-            ms = (end - start) * 1000f,
-            memoryBytes = memoryUsed,
-            gcCollections = gcAfter - gcBefore,
-            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-        });
-
-        UpdateTextureFromBuffer();
-    }
-
-    private void RunNoBurstManagedVersion(string label)
-    {
-        int total = width * height;
-        int gcBefore = GC.CollectionCount(0);
-        float start = Time.realtimeSinceStartup;
-
-        for (int index = 0; index < total; index++)
+        for (int index = 0; index < buffer.Length; index++)
         {
             int x = index % width;
             int y = index / width;
@@ -148,45 +106,26 @@ public class NoiseGenerator_Managed : MonoBehaviour
             Unity.Mathematics.Random rand = new Unity.Mathematics.Random(hash);
             buffer[index] = rand.NextFloat();
         }
-
-        float end = Time.realtimeSinceStartup;
-        int gcAfter = GC.CollectionCount(0);
-        long memoryUsed = GC.GetTotalMemory(false);
-
-        benchmarkLog.Add(new BenchmarkRecord
-        {
-            label = label,
-            ms = (end - start) * 1000f,
-            memoryBytes = memoryUsed,
-            gcCollections = gcAfter - gcBefore,
-            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-        });
-
-        UpdateTextureFromBuffer();
     }
 
-    private void ExportBenchmarksToCSV()
+    private void GenerateNoiseBurst(float[] buffer)
     {
-        string path = Path.Combine(ArenaConfig.LoggingPath, "ManagedBenchmarks.csv");
-        bool fileExists = File.Exists(path);
+        NativeArray<float> nativeBuffer = new NativeArray<float>(buffer.Length, Allocator.TempJob);
 
-        using StreamWriter writer = new StreamWriter(path, true);
-        if (!fileExists)
+        var job = new GenerateManagedNoiseJob
         {
-            writer.WriteLine("Label,Milliseconds,MemoryBytes,GCCollections,Timestamp");
-        }
+            buffer = nativeBuffer,
+            width = width,
+            height = height,
+            seed = Time.time
+        };
 
-        foreach (var record in benchmarkLog)
-        {
-            string line = $"{record.label},{record.ms:F3},{record.memoryBytes},{record.gcCollections},{record.timestamp}";
-            writer.WriteLine(line);
-        }
-
-        benchmarkLog.Clear();
-        ArenaLog.Log("NoiseGenerator_Managed", $"Benchmark results exported to {path}.", ArenaLog.Level.Success);
+        job.Schedule(buffer.Length, 64).Complete();
+        nativeBuffer.CopyTo(buffer);
+        nativeBuffer.Dispose();
     }
 
-    private void UpdateTextureFromBuffer()
+    private void UpdateTextureFromBuffer(float[] buffer)
     {
         Color[] colors = new Color[buffer.Length];
         for (int i = 0; i < buffer.Length; i++)
@@ -197,6 +136,27 @@ public class NoiseGenerator_Managed : MonoBehaviour
 
         outputTexture.SetPixels(colors);
         outputTexture.Apply();
+    }
+
+    private void ExportBenchmarksToCSV()
+    {
+        string path = Path.Combine(ArenaConfig.LoggingPath, "ManagedBenchmarks_Cycles.csv");
+        bool fileExists = File.Exists(path);
+
+        using StreamWriter writer = new StreamWriter(path, true);
+        if (!fileExists)
+        {
+            writer.WriteLine("Label,Cycle,FrameInCycle,Milliseconds,MemoryBytes,GCCollections,Timestamp");
+        }
+
+        foreach (var record in benchmarkLog)
+        {
+            string line = $"{record.label},{record.cycle},{record.frame},{record.ms:F3},{record.memoryBytes},{record.gcCollections},{record.timestamp}";
+            writer.WriteLine(line);
+        }
+
+        benchmarkLog.Clear();
+        ArenaLog.Log("NoiseGenerator_Managed", $"Benchmark results exported to {path}.", ArenaLog.Level.Success);
     }
 
     [BurstCompile]
@@ -221,6 +181,8 @@ public class NoiseGenerator_Managed : MonoBehaviour
     public struct BenchmarkRecord
     {
         public string label;
+        public int cycle;
+        public int frame;
         public float ms;
         public long memoryBytes;
         public int gcCollections;
