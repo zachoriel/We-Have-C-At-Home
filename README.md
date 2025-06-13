@@ -50,10 +50,10 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 
 | Strategy                     | Avg Time (ms) | Avg Memory (MB)  | GC Collections|
 |------------------------------|---------------|------------------|---------------|
-| Managed Memory + Burst       | ~4.27ms       | ~1,770 MB        | 55            |
-| Managed Memory + No Burst    | ~55.92ms      | ~1,776 MB        | 58            |
-| Arena Memory + No Burst      | ~59.31ms      | ~700 MB          | 2             |
-| Arena Memory + Burst         | ~1.25ms       | ~700 MB          | 0             |
+| Managed Memory + Burst       | ~4.27ms       | ~1,689 MB        | 55            |
+| Managed Memory + No Burst    | ~55.92ms      | ~1,682 MB        | 58            |
+| Arena Memory + No Burst      | ~59.31ms      | ~673 MB          | 2             |
+| Arena Memory + Burst         | ~1.25ms       | ~675 MB          | 0             |
 
 ### Key Takeaways
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
