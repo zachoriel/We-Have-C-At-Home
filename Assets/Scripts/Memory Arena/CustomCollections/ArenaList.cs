@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Unity.Collections.LowLevel.Unsafe;
 
 /// <summary>
-/// An unmanaged container that hooks-into an arena allocator for high-performance collections.
+/// A Burst-safe, unmanaged container that hooks-into an arena allocator for high-performance collections.
 /// This list does not own its memory and does not support manual disposal. Its backing memory is freed
 /// when the parent ArenaAllocator is reset or disposed. Use this in place of NativeList if you want
 /// integration with memory arenas and automatic disposal, and are okay with fixed capacities.
@@ -35,9 +35,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
 
         this.count = 0;
         this.capacity = capacity;
-
-        ArenaLog.Log("ArenaList", $"Allocated a new ArenaList of type {typeof(T)} (Capacity: {capacity}, Size: {totalSize}, Alignment: {alignment}, Tag: {tag}) " +
-            $"in arena {arena->GetID()}.", ArenaLog.Level.Success);
     }
 
     public int Count => count;
@@ -53,8 +50,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
 
         UnsafeUtility.WriteArrayElement(data, count, value);
         count++;
-
-        ArenaLog.Log("ArenaList", $"New value {value} added to list, new length: {count}, old length: {count - 1}.", ArenaLog.Level.Success);
     }
 
     public void AddMultiple(ReadOnlySpan<T> values)
@@ -90,7 +85,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
             throw new IndexOutOfRangeException();
         }
 
-        var valueToRemove = UnsafeUtility.ReadArrayElement<T>(data, index);
         // Shift elements left.
         for (int i = index; i < count - 1; i++)
         {
@@ -98,8 +92,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
             UnsafeUtility.WriteArrayElement(data, i, next);
         }
         count--;
-
-        ArenaLog.Log("ArenaList", $"Value {valueToRemove} removed from ArenaList. New length is: {count}.", ArenaLog.Level.Success);
     }
 
     public void InsertAt(int index, T value)
@@ -122,15 +114,11 @@ public unsafe struct ArenaList<T> where T : unmanaged
 
         UnsafeUtility.WriteArrayElement(data, index, value);
         count++;
-
-        ArenaLog.Log("ArenaList", $"Value {value} added to ArenaList at index {index}. New length is: {count}.", ArenaLog.Level.Success);
     }
 
     public void Clear()
     {
         count = 0;
-
-        ArenaLog.Log("ArenaList", $"ArenaList cleared, new length: {count}.", ArenaLog.Level.Success);
     }
 
     public T this[int index]
@@ -143,7 +131,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
             }
 
             var val = UnsafeUtility.ReadArrayElement<T>(data, index);
-            ArenaLog.Log("ArenaList", $"Index {index} read value: {val}", ArenaLog.Level.Success);
             return val;
         }
         set
@@ -154,8 +141,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
             }
 
             UnsafeUtility.WriteArrayElement(data, index, value);
-
-            ArenaLog.Log("ArenaList", $"Index {index} set to value: {value}.", ArenaLog.Level.Success);
         }
     }
 
@@ -169,15 +154,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
             array[i] = UnsafeUtility.ReadArrayElement<T>(data, i);
         }
 
-        if (array.Length == 0)
-        {
-            ArenaLog.Log("ArenaList", "Array length is 0.", ArenaLog.Level.Warning);
-        }
-        else
-        {
-            ArenaLog.Log("ArenaList", $"Converted ArenaList to array. Length: {count}.", ArenaLog.Level.Success);
-        }
-
         return array;
     }
 
@@ -188,8 +164,6 @@ public unsafe struct ArenaList<T> where T : unmanaged
         {
             arenaArray[i] = UnsafeUtility.ReadArrayElement<T>(data, i);
         }
-
-        ArenaLog.Log("ArenaList", $"Converted ArenaList to ArenaArray. Length: {count}.", ArenaLog.Level.Success);
 
         return arenaArray;
     }

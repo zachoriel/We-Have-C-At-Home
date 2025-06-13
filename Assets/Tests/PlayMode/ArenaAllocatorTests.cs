@@ -635,7 +635,6 @@ public class ArenaAllocatorTests
         var arena = liveArenas[0];
         var list = new ArenaList<int>(&arena, 3, "IntList");
 
-        ArenaLog.ExpectLog(LogType.Warning, "length is 0");
         int[] testArray = list.ToArray();
         Assert.AreEqual(0, testArray.Length);
     }

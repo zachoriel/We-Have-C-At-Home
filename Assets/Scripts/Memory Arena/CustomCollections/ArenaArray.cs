@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Unity.Collections.LowLevel.Unsafe;
 
 /// <summary>
-/// A fixed-length array backed by arena-allocated unmanaged memory.
+/// A Burst-safe, fixed-length array backed by arena-allocated unmanaged memory.
 /// Like NativeArray, but without ownership or disposal — memory is released when the parent ArenaAllocator is disposed or reset.
 /// </summary>
 /// <typeparam name="T">Only unmanaged value types are supported (e.g. int, float, Vector3, MyUnmanagedStruct).</typeparam>
@@ -36,9 +36,6 @@ public unsafe struct ArenaArray<T> where T : unmanaged
         }
 
         this.length = length;
-
-        ArenaLog.Log("ArenaArray", $"Allocated a new ArenaArray of type {typeof(T)} (Length: {length}, Size: {totalSize}, Alignment: {alignment}, Tag: {tag}) " +
-            $"in arena {arena->GetID()}.", ArenaLog.Level.Success);
     }
 
     public int Length => length;
@@ -54,8 +51,7 @@ public unsafe struct ArenaArray<T> where T : unmanaged
                 throw new IndexOutOfRangeException();
             }
 
-            var val = UnsafeUtility.ReadArrayElement<T>(data, index);
-            ArenaLog.Log("ArenaArray", $"Index {index} read value: {val}", ArenaLog.Level.Success);
+            var val = UnsafeUtility.ReadArrayElement<T>(data, index);   
             return val;
         }
         set
@@ -66,7 +62,6 @@ public unsafe struct ArenaArray<T> where T : unmanaged
             }
 
             UnsafeUtility.WriteArrayElement(data, index, value);
-            ArenaLog.Log("ArenaArray", $"Index {index} set to value: {value}.", ArenaLog.Level.Success);
         }
     }
 
@@ -82,8 +77,6 @@ public unsafe struct ArenaArray<T> where T : unmanaged
         {
             UnsafeUtility.WriteArrayElement(data, i, source[i]);
         }
-
-        ArenaLog.Log("ArenaArray", $"Copied {length} elements from managed array.", ArenaLog.Level.Success);
     }
 
     public void CopyTo(T[] destination)
@@ -98,8 +91,6 @@ public unsafe struct ArenaArray<T> where T : unmanaged
         {
             destination[i] = UnsafeUtility.ReadArrayElement<T>(data, i);
         }
-
-        ArenaLog.Log("ArenaArray", $"Copied {length} elements to managed array.", ArenaLog.Level.Success);
     }
 
     /// <summary>
