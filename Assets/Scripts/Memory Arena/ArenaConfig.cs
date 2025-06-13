@@ -18,9 +18,14 @@ public static class ArenaConfig
     public static bool TrackAlignmentLoss = true;
 
     /// <summary>
+    /// The key that runs performance benchmarks.
+    /// </summary>
+    public static KeyCode RunBenchmarkKey = KeyCode.Space;
+
+    /// <summary>
     /// The key that exports performance benchmark results.
     /// </summary>
-    public static KeyCode benchmarkExportKey = KeyCode.B;
+    public static KeyCode BenchmarkExportKey = KeyCode.B;
 
     /// <summary>
     /// Where to store output logs & benchmark results.

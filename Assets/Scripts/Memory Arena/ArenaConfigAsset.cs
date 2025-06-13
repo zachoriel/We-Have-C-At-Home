@@ -6,7 +6,8 @@ public class ArenaConfigAsset : ScriptableObject
     public bool EnableLogging = true;
     public bool TrackAllocations = true;
     public bool TrackAlignmentLoss = true;
-    public KeyCode benchmarkExportKey = KeyCode.B;
+    public KeyCode RunBenchmarkKey = KeyCode.Space;
+    public KeyCode BenchmarkExportKey = KeyCode.B;
     public string LoggingPath = "";
 
     private void OnValidate()
@@ -14,7 +15,8 @@ public class ArenaConfigAsset : ScriptableObject
         ArenaConfig.EnableLogging = EnableLogging;
         ArenaConfig.TrackAllocations = TrackAllocations;
         ArenaConfig.TrackAlignmentLoss = TrackAlignmentLoss;
-        ArenaConfig.benchmarkExportKey = benchmarkExportKey;
+        ArenaConfig.RunBenchmarkKey = RunBenchmarkKey;
+        ArenaConfig.BenchmarkExportKey = BenchmarkExportKey;
         if (!string.IsNullOrEmpty(LoggingPath))
         {
             ArenaConfig.LoggingPath = LoggingPath;
