@@ -108,7 +108,7 @@ Ideal use cases include:
   - Smart: automatically sets alignment to the next power of 2 greater than or equal to the size of the allocation (minimizes waste)
 - **ArenaArray<T>** and **ArenaList<T>** containers
   - ArenaArray<T>: A Burst-compatible, fixed-length array backed by arena-allocated unmanaged memory. Like `NativeArray<T>`, but without ownership or disposal — memory is released when the parent `ArenaAllocator` is disposed or reset.
-  - ArenaList<T>: A Burst-compatible, unmanaged container that hooks into an arena allocator for high-performance collections. Like `ArenaArray<T>`, this structure does not own its memory and is managed by `ArenaAllocator`'s disposal or reset. Use this in place of `NativeList<T>` if you want integration with memory arenas and automatic disposal, and are okay with      fixed capacities.
+  - ArenaList<T>: A Burst-compatible, unmanaged container that hooks into an arena allocator for high-performance collections. Like `ArenaArray<T>`, this structure does not own its memory and is managed by `ArenaAllocator`'s disposal or reset. Use this in place of `NativeList<T>` if you want integration with memory arenas and automatic disposal, and are okay with      fixed capacities. (ArenaLists can be manually resized via reallocation, but do not grow dynamically like standard Lists.)
 - Custom logging with color coding, source labeling, timestamps, and export
 - Togglable monitoring system with per-arena allocation tracking (offsets, sizes, tags, over-alignment)
 - Multiple arena support with ID-based isolation
