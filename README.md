@@ -1,9 +1,9 @@
-# Memory Arena for Unity: Unsafe Memory Handled Safely, Minimal Garbage Collection
+# Memory Arena for Unity: Unsafe Memory Handled Safely, Zero Garbage Collection, Full Control
 
 ![Unity 6000.0.42](https://img.shields.io/badge/unity-6000.0.42%2B-blue?logo=unity)
 ![Last Commit](https://img.shields.io/github/last-commit/zachoriel/We-Have-C-At-Home)
 
-This is a high-performance memory management toolkit for Unity, inspired by [git-amend's excellent primer on memory arenas](https://www.youtube.com/watch?v=qIJxPAJ3R-I). It began as an experiment to learn more about unsafe code and evolved into a full-featured arena-based allocator with custom containers, tracking, logging, and benchmark tooling — all built to answer a single question:
+This is a high-performance memory management toolkit for Unity, inspired by [git-amend's excellent primer on memory arenas](https://www.youtube.com/watch?v=qIJxPAJ3R-I). It started as an experiment to learn more about unsafe code and evolved into a full-featured arena-based allocator with custom containers, tracking, logging, and benchmark tooling — all built to answer a single question:
 
 > *How much performance and memory control can you reclaim from Unity's managed heap without going insane?*
 
@@ -12,7 +12,7 @@ But here's a hint:
 <p align="center">
   <img src="https://github.com/user-attachments/assets/ec49c806-97d3-4c3e-aea5-43dd6ac24979" width="600"/>
 </p>
-<p align="center"><em>Zero GC collections with Arena + Burst. Full control. No stutters.</em></p>
+<p align="center"><em>Zero GC with Arena + Burst. Full control. No stutters. No compromises.</em></p>
 
 ###### More graphs, charts, and data tables can be found below. 😎
 
@@ -25,7 +25,7 @@ But here's a hint:
 - [Why Use a Memory Arena in Unity?](#why-use-a-memory-arena-in-unity)
 - [Benchmark Experiment - Design and Methodology](#benchmark-experiment---design-and-methodology)
 - [Benchmark Experiment - Results](#benchmark-experiment---results) <-- click here if you just wanna see the tables & graphs
-- [So, When Should You Use ArenaAllocator?](#so-when-should-you-use-arenaallocator)
+- [When Should You Use ArenaAllocator?](#when-should-you-use-arenaallocator)
 - [Current Features](#current-features)
 - [Things I May Add in the Future](#things-i-may-add-in-the-future)
 - [How To Use](#how-to-use)
@@ -54,7 +54,7 @@ Burst refers to the "Burst compiler" — a Unity package that works with Unity's
 
 Unity’s garbage collector (GC) is non-generational, incremental, and prone to stutters in GC-heavy workloads. Even Burst and Jobs don’t eliminate the problem if your allocations aren’t tightly scoped. Arena-based memory solves this by letting you allocate once, write in-place, and reset or dispose deterministically — zero GC involved.
 
-**But don't just take my word for it — I measured it.**
+**But you don't have to take my word for it — I measured it.**
 
 ---
 
@@ -104,7 +104,7 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 - **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a complete elimination of GC calls.
 - **Arena + Burst** offers the best of both worlds: the lowest memory footprint and fastest execution.
 
-And because visual data is fun, here are some charts and graphs of the above findings:
+And because visual data is fun, here are some charts and graphs that bring the data to life:
 
 ![MillisecondsPerCycleChart](https://github.com/user-attachments/assets/85772674-6537-4ae8-8860-c1c52f094823)
 ![MemoryUsagePerCycleChart](https://github.com/user-attachments/assets/ea1fc947-4372-46ca-a12a-afc270ef2c11)
@@ -145,7 +145,7 @@ The raw CSV files for these tests can be found in Assets/Logs if you want to che
 
 ---
 
-## So, when Should You Use ArenaAllocator?
+## When Should You Use ArenaAllocator?
 
 Use it when you need **tight control over memory** or want to **avoid GC stutters** — especially in systems that allocate frequently or work with large buffers.
 
@@ -209,7 +209,7 @@ Ideal use cases include:
 
 ## How To Use
 
-Right now this project is more of a research/case study, and not intended for public use. However, if you *really* want to plug this into your project, here is an ***extremely barebones*** collection of code that you may find useful for getting started.
+This project is currently a research-focused case study, not a production-ready library. That said, if you ***really*** want to plug this into your project, here is an ***extremely barebones*** collection of code that you may find useful for getting started.
 
 `var arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
 
