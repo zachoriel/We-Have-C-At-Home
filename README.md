@@ -12,7 +12,7 @@ But here's a hint:
 <p align="center">
   <img src="https://github.com/user-attachments/assets/ec49c806-97d3-4c3e-aea5-43dd6ac24979" width="600"/>
 </p>
-<p align="center"><em>Zero GC with Arena + Burst. Full control. No stutters. No compromises.</em></p>
+<p align="center"><em>Zero garbage collection with Arena + Burst. Full control. No stutters. No compromises.</em></p>
 
 ###### More graphs, charts, and data tables can be found below. 😎
 
