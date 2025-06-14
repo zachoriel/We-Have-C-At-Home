@@ -64,7 +64,7 @@ To test real-world impact, I implemented a sustained procedural workload that mi
 
 > **Scenario**: Procedurally generate a 1024x1024 noise texture repeatedly, over 500 cycles, allocating a new buffer every 5 frames.
 
-1024x1024 is a rather extreme texture size for noise generation, but I felt this was a reasonable tradeoff given that the benchmark only generates one texture at a time. In real systems, you might generate many smaller buffers per frame — the pressure adds up either way.
+1024x1024 is a relatively large texture size for procedural noise, but I chose it intentionally as a tradeoff. The benchmark only generates one texture at a time, which helps isolate allocation behavior and performance impact. In real-world systems, you'd often see many smaller allocations per frame — but the cumulative memory pressure and GC risk scale similarly. This setup simulates that load while keeping the test controlled and interpretable.
 
 Each memory strategy was tested under identical conditions:
 - Total allocations: 500 (one per cycle, sustained)
@@ -103,6 +103,7 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
 - **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a complete elimination of GC calls.
 - **Arena + Burst** offers the best of both worlds: the lowest memory footprint and fastest execution.
+- A 1024x1024 float[] buffer means ~4MB each, multiplied by 500 = ~2GB memory usage if retained. **Arena** cuts that by over 60%, while **Managed** only trims roughly 15%.
 
 And because visual data is fun, here are some charts and graphs that bring the data to life:
 
@@ -128,7 +129,7 @@ These tests resulted in a combined 20,000 rows of CSV data, which were aggregate
 </div>
 
 ### Key Takeaways
-- Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental editor and/or system GC, etc.
+- Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental editor GC, etc.
 - **Arena + Burst** remains by far the most performant system, with minor speed increases over **Managed Memory + Burst** and still ~2.6x less memory footprint.
 - **Burst** is still the heavy-lifter for raw speed gains.
 - **Arena** near-completely eliminates GC calls, resulting in steady and predictable overhead.
