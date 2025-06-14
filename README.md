@@ -13,6 +13,19 @@ But here's a hint:
 
 ###### More graphs, charts, and data tables can be found below. 😎
 
+## Table of Contents
+
+- [Repository Overview](#repository-overview)
+- [What Is a Memory Arena?](#what-is-a-memory-arena)
+- [What Is Burst?](#what-is-burst)
+- [Why Use a Memory Arena in Unity?](#why-use-a-memory-arena-in-unity)
+- [Benchmark Experiment - Design and Methodology](#benchmark-experiment---design-and-methodology)
+- [Benchmark Experiment - Results (click here if you just wanna see the tables & graphs](#benchmark-experiment---results)
+- [So, When Should You Use ArenaAllocator?](#so-when-should-you-use-arenaallocator)
+- [Current Features](#current-features)
+- [Things I May Add in the Future](#things-i-may-add-in-the-future)
+- [How To Use](#how-to-use)
+
 ## Repository Overview
 
 #### Core Scripts
@@ -28,7 +41,7 @@ But here's a hint:
 
 A memory arena is a low-level memory management technique where a large block of memory is allocated up front, and then smaller allocations are made from that block manually. This eliminates per-allocation overhead, enables predictable performance, and is especially useful in high-performance or real-time applications like games or simulations.
 
-## What is Burst?
+## What Is Burst?
 
 Burst refers to the "Burst compiler" — a Unity package that works with Unity's Job System to execute highly-optimized C# code. It adds a small amount of code complexity to your project, but yields significant speed gains in execution time. My memory arena is designed to be used alongside Burst/Jobs, but it is not a hard requirement. The benchmarks shown here include tests both with and without Burst, for empirical comparison of performance benefit.
 
