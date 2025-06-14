@@ -7,6 +7,7 @@ using Unity.Burst;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
@@ -25,6 +26,7 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private Color runningColor = Color.yellow;
     [SerializeField] private Color completedColor = Color.green;
+    [SerializeField] private Button[] controlButtons;
 
     private ArenaAllocator* arena;
     private List<ArenaArray<float>> arenaBuffers = new();
@@ -38,9 +40,15 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
 
     public void RunBenchmark(bool burst)
     {
-        int arenaSize = width * height * allocationsPerCycle * framesPerCycle * sizeof(float);
-        arena = (ArenaAllocator*)UnsafeUtility.Malloc(sizeof(ArenaAllocator), 64, Allocator.Persistent);
-        *arena = new ArenaAllocator(0, arenaSize, Allocator.Persistent);
+        if (arena == null)
+        {
+            int arenaSize = width * height * allocationsPerCycle * framesPerCycle * sizeof(float);
+            arena = (ArenaAllocator*)UnsafeUtility.Malloc(sizeof(ArenaAllocator), 64, Allocator.Persistent);
+            *arena = new ArenaAllocator(0, arenaSize, Allocator.Persistent);
+        }
+
+        arena->Reset();
+        arenaBuffers.Clear();
 
         outputTexture = new Texture2D(width, height, TextureFormat.RFloat, false);
         outputTexture.filterMode = FilterMode.Point;
@@ -55,6 +63,10 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
 
         statusText.text = "Running Benchmark";
         statusText.color = runningColor;
+        foreach (var btn in controlButtons)
+        {
+            btn.interactable = false;
+        }
     }
 
     private void Update()
@@ -122,6 +134,10 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
 
             statusText.text = "Benchmark Complete; Results Exported";
             statusText.color = completedColor;
+            foreach (var btn in controlButtons)
+            {
+                btn.interactable = true;
+            }
 
             arena->Reset();
             arenaBuffers.Clear();

@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Burst;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class NoiseGenerator_Managed : MonoBehaviour
@@ -24,6 +25,7 @@ public class NoiseGenerator_Managed : MonoBehaviour
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private Color runningColor = Color.yellow;
     [SerializeField] private Color completedColor = Color.green;
+    [SerializeField] private Button[] controlButtons;
 
     private List<float[]> managedBuffers = new List<float[]>();
     private Texture2D outputTexture;
@@ -49,6 +51,10 @@ public class NoiseGenerator_Managed : MonoBehaviour
 
         statusText.text = "Running Benchmark";
         statusText.color = runningColor;
+        foreach (var btn in controlButtons)
+        {
+            btn.interactable = false;
+        }
     }
 
     private void Update()
@@ -110,6 +116,10 @@ public class NoiseGenerator_Managed : MonoBehaviour
 
             statusText.text = "Benchmark Complete; Results Exported";
             statusText.color = completedColor;
+            foreach (var btn in controlButtons)
+            {
+                btn.interactable = true;
+            }
 
             ArenaLog.Log("NoiseGenerator_Managed", "All benchmark cycles complete; automatically exported results to CSV.", ArenaLog.Level.Success);
         }

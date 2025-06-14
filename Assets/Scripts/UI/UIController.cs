@@ -1,10 +1,13 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
     public void Exit()
     {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.ExitPlaymode();
+        #endif
+
         Application.Quit();
     }
 }
