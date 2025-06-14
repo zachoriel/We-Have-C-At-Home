@@ -175,3 +175,5 @@ Ideal use cases include:
 - Arena wizards & packaging for real-world use
 
 ---
+
+You know what's funny? I learned more about memory management by working on this project than I ever did in any of the C++ courses I took in college. I guess making it work in an environment where you're *not supposed* to do it forces you to think about the concepts in a different way.
