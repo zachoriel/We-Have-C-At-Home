@@ -13,6 +13,17 @@ But here's a hint:
 
 ###### More graphs, charts, and data tables can be found below. 😎
 
+## Repository Overview
+
+#### Core Scripts
+- [ArenaAllocator](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/ArenaAllocator.cs)
+- [ArenaMonitor](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/ArenaMonitor.cs)
+- [ArenaLog](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/ArenaLog.cs)
+- [ArenaArray](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/CustomCollections/ArenaArray.cs)
+- [ArenaList](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/CustomCollections/ArenaList.cs)
+- [NoiseGenerator_Unmanaged (demo usage)](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/DemoUsage/NoiseGenerator_Unmanaged.cs)
+- [ArenaAllocatorTests (unit test suite)](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Tests/PlayMode/ArenaAllocatorTests.cs)
+
 ## What Is a Memory Arena?
 
 A memory arena is a low-level memory management technique where a large block of memory is allocated up front, and then smaller allocations are made from that block manually. This eliminates per-allocation overhead, enables predictable performance, and is especially useful in high-performance or real-time applications like games or simulations.
@@ -175,6 +186,18 @@ Ideal use cases include:
 
 - Editor windows for allocation & performance visualization, maybe a CSV importer that plots data to graphs automatically
 - Arena wizards & packaging for real-world use
+
+---
+
+## How To Use
+
+Right now this project is more of a research/case study, and not intended for public use. However, if you *really* want to plug this into your project, here is an ***extremely barebones*** collection of code that you may find useful for getting started.
+
+`var arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
+
+`var array = new ArenaArray<float>(&arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
+
+I also highly recommend taking a look at both [NoiseGenerator_Unmanaged](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/DemoUsage/NoiseGenerator_Unmanaged.cs) and [ArenaAllocatorTests](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Tests/PlayMode/ArenaAllocatorTests.cs) to see real examples ArenaAllocator in action. 
 
 ---
 
