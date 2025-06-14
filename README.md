@@ -108,7 +108,7 @@ And because visual data is fun, here are some charts and graphs that bring the d
 
 ![MillisecondsPerCycleChart](https://github.com/user-attachments/assets/85772674-6537-4ae8-8860-c1c52f094823)
 ![MemoryUsagePerCycleChart](https://github.com/user-attachments/assets/ea1fc947-4372-46ca-a12a-afc270ef2c11)
-<p align="center"><em>^ Here we can see that <b>Managed</b> models contain severe memory bloat from old buffers</em></p>
+<p align="center"><em>^ Note: while the theoretical peak allocation is ~2GB for 500 x 4MB 1024x1024 buffers, actual memory use under managed memory exceeded 2.7GB due to GC fragmentation, large object heap behavior, and Unity editor overhead. This reflects typical worst-case bloat/pressure when relying on the managed allocator.</em></p>
 
 ![FrameTimeByStrategyGraph](https://github.com/user-attachments/assets/3a0289e4-a1af-4f3e-a1bf-ae281a505ce5)
 ![MemoryUsageByStrategyGraph](https://github.com/user-attachments/assets/200df555-e3f4-40e9-941b-4c186fa9a9ca)
