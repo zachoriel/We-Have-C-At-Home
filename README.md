@@ -169,9 +169,9 @@ Ideal use cases include:
 
 ---
 
-## Planned Features
+## Things I May Add in the Future
 
-- Editor windows for allocation & performance visualization
-- Packaging for real-world use
+- Editor windows for allocation & performance visualization, maybe a CSV importer that plots data to graphs automatically
+- Arena wizards & packaging for real-world use
 
 ---
