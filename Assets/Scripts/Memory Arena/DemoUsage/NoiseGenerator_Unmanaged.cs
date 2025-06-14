@@ -7,6 +7,7 @@ using Unity.Burst;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using TMPro;
 
 public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
 {
@@ -20,18 +21,22 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
     [SerializeField] private int framesPerCycle = 5;
     [SerializeField] private int totalCycles = 100;
     [SerializeField] private bool useBurst = true;
-    [SerializeField] private bool resetArenaOnCycleEnd = true;
+    [SerializeField] private TextMeshProUGUI statusText;
+    [SerializeField] private TextMeshProUGUI progressText;
+    [SerializeField] private Color runningColor = Color.yellow;
+    [SerializeField] private Color completedColor = Color.green;
 
     private ArenaAllocator* arena;
-    private Texture2D outputTexture;
     private List<ArenaArray<float>> arenaBuffers = new();
+    private Texture2D outputTexture;
 
     private List<BenchmarkRecord> benchmarkLog = new();
     private int currentCycle = 0;
     private int currentFrameInCycle = 0;
+    private bool runningBenchmark = false;
     private bool benchmarkComplete = false;
 
-    private unsafe void Start()
+    public void RunBenchmark(bool burst)
     {
         int arenaSize = width * height * allocationsPerCycle * framesPerCycle * sizeof(float);
         arena = (ArenaAllocator*)UnsafeUtility.Malloc(sizeof(ArenaAllocator), 64, Allocator.Persistent);
@@ -40,12 +45,24 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
         outputTexture = new Texture2D(width, height, TextureFormat.RFloat, false);
         outputTexture.filterMode = FilterMode.Point;
         targetMaterial.mainTexture = outputTexture;
+
+        useBurst = burst;
+        benchmarkComplete = false;
+        runningBenchmark = true;
+
+        currentCycle = 0;
+        currentFrameInCycle = 0;
+
+        statusText.text = "Running Benchmark";
+        statusText.color = runningColor;
     }
 
     private void Update()
     {
-        if (!benchmarkComplete && currentCycle < totalCycles)
+        if (runningBenchmark && !benchmarkComplete && currentCycle < totalCycles)
         {
+            progressText.text = $"Cycle: {currentCycle + 1}/{totalCycles}";
+
             currentFrameInCycle++;
             int total = width * height;
 
@@ -91,23 +108,25 @@ public unsafe class NoiseGenerator_Unmanaged : MonoBehaviour
                     UpdateTextureFromBuffer(arenaBuffers[^1]);
                 }
 
-                if (resetArenaOnCycleEnd)
-                {
-                    arena->Reset();
-                    arenaBuffers.Clear();
-                }
+                arena->Reset();
+                arenaBuffers.Clear();
             }
         }
 
         if (currentCycle >= totalCycles && !benchmarkComplete)
         {
             benchmarkComplete = true;
-            ArenaLog.Log("NoiseGenerator_Unmanaged", "All benchmark cycles complete; ready to export.", ArenaLog.Level.Success);
-        }
+            runningBenchmark = false;
 
-        if (benchmarkComplete && Input.GetKeyDown(ArenaConfig.BenchmarkExportKey))
-        {
             ExportBenchmarksToCSV();
+
+            statusText.text = "Benchmark Complete; Results Exported";
+            statusText.color = completedColor;
+
+            arena->Reset();
+            arenaBuffers.Clear();
+
+            ArenaLog.Log("NoiseGenerator_Unmanaged", "All benchmark cycles complete; automatically exported results to CSV.", ArenaLog.Level.Success);
         }
     }
 

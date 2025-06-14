@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Burst;
 using UnityEngine;
+using TMPro;
 
 public class NoiseGenerator_Managed : MonoBehaviour
 {
@@ -19,6 +20,10 @@ public class NoiseGenerator_Managed : MonoBehaviour
     [SerializeField] private int framesPerCycle = 5;
     [SerializeField] private int totalCycles = 100;
     [SerializeField] private bool useBurst = true;
+    [SerializeField] private TextMeshProUGUI statusText;
+    [SerializeField] private TextMeshProUGUI progressText;
+    [SerializeField] private Color runningColor = Color.yellow;
+    [SerializeField] private Color completedColor = Color.green;
 
     private List<float[]> managedBuffers = new List<float[]>();
     private Texture2D outputTexture;
@@ -26,19 +31,32 @@ public class NoiseGenerator_Managed : MonoBehaviour
     private List<BenchmarkRecord> benchmarkLog = new List<BenchmarkRecord>();
     private int currentCycle = 0;
     private int currentFrameInCycle = 0;
+    private bool runningBenchmark = false;
     private bool benchmarkComplete = false;
 
-    private void Start()
+    public void RunBenchmark(bool burst)
     {
         outputTexture = new Texture2D(width, height, TextureFormat.RFloat, false);
         outputTexture.filterMode = FilterMode.Point;
         targetMaterial.mainTexture = outputTexture;
+
+        useBurst = burst;
+        benchmarkComplete = false;
+        runningBenchmark = true;
+
+        currentCycle = 0;
+        currentFrameInCycle = 0;
+
+        statusText.text = "Running Benchmark";
+        statusText.color = runningColor;
     }
 
     private void Update()
     {
-        if (!benchmarkComplete && currentCycle < totalCycles)
+        if (runningBenchmark && !benchmarkComplete && currentCycle < totalCycles)
         {
+            progressText.text = $"Cycle: {currentCycle + 1}/{totalCycles}";
+            
             currentFrameInCycle++;
             int total = width * height;
 
@@ -86,12 +104,14 @@ public class NoiseGenerator_Managed : MonoBehaviour
         if (currentCycle >= totalCycles && !benchmarkComplete)
         {
             benchmarkComplete = true;
-            ArenaLog.Log("NoiseGenerator_Managed", "All benchmark cycles complete; ready to export.", ArenaLog.Level.Success);
-        }
+            runningBenchmark = false;
 
-        if (benchmarkComplete && Input.GetKeyDown(ArenaConfig.BenchmarkExportKey))
-        {
             ExportBenchmarksToCSV();
+
+            statusText.text = "Benchmark Complete; Results Exported";
+            statusText.color = completedColor;
+
+            ArenaLog.Log("NoiseGenerator_Managed", "All benchmark cycles complete; automatically exported results to CSV.", ArenaLog.Level.Success);
         }
     }
 
