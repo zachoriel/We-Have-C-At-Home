@@ -57,12 +57,16 @@ I then ran the experiment 10 more times to check for deviation. Below are the re
 
 The experiment resulted in 2,000 rows of CSV data. These results were aggregated and visualized to evaluate both **performance speed** and **memory pressure** over time:
 
+<div align="center">
+  
 | Strategy                       | Avg Time (ms)   | Avg Memory (MB)    | GC Collections  |
 |:------------------------------:|:---------------:|:------------------:|:---------------:|
 | Managed Memory + Burst         | ~4.27ms         | ~1,689 MB          | 55              |
 | Managed Memory + No Burst      | ~55.92ms        | ~1,682 MB          | 58              |
 | Arena Memory + No Burst        | ~59.31ms        | ~673 MB            | 2               |
 | Arena Memory + Burst           | ~1.25ms         | ~675 MB            | 0               |
+
+</div>
 
 ### Key Takeaways
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
@@ -81,12 +85,16 @@ And because visual data is fun, here are some charts and graphs of the above fin
 
 These tests resulted in a combined 20,000 rows of CSV data, which were aggregated and visualized with the same metrics as the control group:
 
+<div align="center">
+  
 | Strategy                       | Avg Time (ms) Per Run   | Avg Memory (MB) Per Run   | Avg GC Collections Per Run             |
 |:------------------------------:|:-----------------------:|:-------------------------:|:--------------------------------------:|
 | Managed Memory + Burst         | ~3.84ms                 | ~1,651 MB                 | 48                                     |
 | Managed Memory + No Burst      | ~54.25ms                | ~1,648 MB                 | 55                                     |
 | Arena Memory + No Burst        | ~59.75ms                | ~629 MB                   | 0.1 (1 GC call across all runs)        |
 | Arena Memory + Burst           | ~1.27ms                 | ~630 MB                   | 0.3 (3 GC calls across all runs)       |
+
+</div>
 
 ### Key Takeaways
 - Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental system GC, etc.
@@ -101,6 +109,8 @@ These tests resulted in a combined 20,000 rows of CSV data, which were aggregate
 ![MemoryUsagePerCycleChart_LargeDataset](https://github.com/user-attachments/assets/fe869077-5f6e-4cf6-a73d-5274179a3c4c)
 
 **Important Caveat**: As mentioned, these benchmarks were run in-editor with logging enabled for the ArenaAllocator (~600 log entries per test run of the Arena strategy). Real-world performance in builds and/or with logging disabled may be even faster, especially for Arena memory.
+
+The raw CSV files for these tests can be found in Assets/Logs if you want to check them for yourself.
 
 ---
 
