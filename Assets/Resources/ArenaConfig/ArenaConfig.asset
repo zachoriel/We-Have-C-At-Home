@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 998cfdde204e30f4bb530e9c9a520814, type: 3}
   m_Name: ArenaConfig
   m_EditorClassIdentifier: 
-  EnableLogging: 1
+  EnableLogging: 0
   TrackAllocations: 1
   TrackAlignmentLoss: 1
+  LoggingPath: C:\Users\Zach\AppData\LocalLow\DefaultCompany\We Have C At Home\Benchmarks

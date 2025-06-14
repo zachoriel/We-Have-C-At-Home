@@ -18,17 +18,30 @@ public static class ArenaConfig
     public static bool TrackAlignmentLoss = true;
 
     /// <summary>
-    /// The key that runs performance benchmarks.
-    /// </summary>
-    public static KeyCode RunBenchmarkKey = KeyCode.Space;
-
-    /// <summary>
-    /// The key that exports performance benchmark results.
-    /// </summary>
-    public static KeyCode BenchmarkExportKey = KeyCode.B;
-
-    /// <summary>
     /// Where to store output logs & benchmark results.
     /// </summary>
     public static string LoggingPath = Application.persistentDataPath;
+
+    private const string ConfigResourcePath = "ArenaConfig/ArenaConfig";
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void LoadSettingsFromAsset()
+    {
+        var configAsset = Resources.Load<ArenaConfigAsset>(ConfigResourcePath);
+        if (configAsset != null)
+        {
+            EnableLogging = configAsset.EnableLogging;
+            TrackAllocations = configAsset.TrackAllocations;
+            TrackAlignmentLoss = configAsset.TrackAlignmentLoss;
+
+            if (!string.IsNullOrEmpty(configAsset.LoggingPath))
+            {
+                LoggingPath = configAsset.LoggingPath;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"ArenaConfigAsset not found at Resources/{ConfigResourcePath}. Using default config.");
+        }
+    }
 }
