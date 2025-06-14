@@ -1,0 +1,3 @@
+# Mark TextMeshPro shaders as vendored
+Assets/TextMesh Pro/**/*.shader linguist-vendored
+Assets/TextMesh Pro/**/*.cginc linguist-vendored
