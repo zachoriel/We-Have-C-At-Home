@@ -66,6 +66,19 @@ To test real-world impact, I implemented a sustained procedural workload that mi
 
 1024x1024 is a fairly extreme texture size for procedural noise, but I chose it intentionally as a tradeoff. The benchmark only generates one texture at a time, which helps isolate allocation behavior and performance impact. In real-world systems, you'd often see many smaller allocations per frame — but the cumulative memory pressure and GC risk scale similarly. This setup simulates that load while keeping the test controlled and interpretable.
 
+<details>
+  
+<summary>Summary (For Non-Programmers)</summary>
+
+I tested four versions of a system that creates data over time. Some used Unity’s default memory tools, others used my custom arena system. I tracked speed, memory usage, and how often Unity had to “clean up” (GC).
+
+The results: my arena system used significantly less memory, ran a little faster, and didn’t stutter from cleanup operations.
+</details>
+
+<details>
+
+<summary>Technical Explanation (For Programmers)</summary>
+
 Each memory strategy was tested under identical conditions:
 - Total allocations: 500 (one per cycle, sustained)
 - Buffers: `float[]` (managed) or `ArenaArray<float>` (arena)
@@ -79,6 +92,7 @@ This simulation represents:
 - Consistent short-lived allocation churn
 - Heavy per-frame compute on large buffers
 - Controlled memory lifecycle for comparison
+</details>
 
 I then ran the experiment 10 more times to check for deviation. Below are the results:
 
