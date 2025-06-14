@@ -97,7 +97,7 @@ These tests resulted in a combined 20,000 rows of CSV data, which were aggregate
 </div>
 
 ### Key Takeaways
-- Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental system GC, etc.
+- Performance metrics remained consistent with the control group, with minor deviation assumed to be from random editor overhead oddities, incidental editor and/or system GC, etc.
 - **Arena + Burst** remains by far the most performant system, with minor speed increases over **Managed Memory + Burst** and still ~2.6x less memory footprint.
 - **Burst** is still the heavy-lifter for raw speed gains.
 - **Arena** near-completely eliminates GC calls, resulting in steady and predictable overhead.
@@ -108,9 +108,9 @@ These tests resulted in a combined 20,000 rows of CSV data, which were aggregate
 
 ![MemoryUsagePerCycleChart_LargeDataset](https://github.com/user-attachments/assets/fe869077-5f6e-4cf6-a73d-5274179a3c4c)
 
-**Important Caveat**: As mentioned, these benchmarks were run in-editor with logging enabled for the ArenaAllocator (~600 log entries per test run of the Arena strategy). Real-world performance in builds and/or with logging disabled may be even faster, especially for Arena memory.
-
 The raw CSV files for these tests can be found in Assets/Logs if you want to check them for yourself.
+
+**Important Caveat**: As mentioned, these benchmarks were run in-editor with logging enabled for the ArenaAllocator (~600 log entries per test run of the Arena strategy). Real-world performance in builds and/or with logging disabled may be even faster, especially for Arena memory. Anecdotally, my Arena + Burst runs in a build environment with no logging consistently averaged about 0.8ms and 0 GC calls.
 
 ---
 
