@@ -175,17 +175,3 @@ Ideal use cases include:
 - Packaging for real-world use
 
 ---
-
-## How To Use
-
-### Demo Scene
-
-(ToDo: screenshots + steps)
-
-### Unit Testing
-
-(ToDo: screenshots + steps)
-
-### Code Examples
-
-(ToDo: screenshots + steps)
