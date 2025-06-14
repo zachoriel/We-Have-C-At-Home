@@ -103,7 +103,6 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
 - **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a complete elimination of GC calls.
 - **Arena + Burst** offers the best of both worlds: the lowest memory footprint and fastest execution.
-- A 1024x1024 `float[]` buffer means ~4MB each, multiplied by 500 = ~2GB memory usage if retained. **Arena** cuts that by over 60%, while **Managed** only trims roughly 15%.
 
 And because visual data is fun, here are some charts and graphs that bring the data to life:
 
