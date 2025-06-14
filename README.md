@@ -20,7 +20,7 @@ But here's a hint:
 - [What Is Burst?](#what-is-burst)
 - [Why Use a Memory Arena in Unity?](#why-use-a-memory-arena-in-unity)
 - [Benchmark Experiment - Design and Methodology](#benchmark-experiment---design-and-methodology)
-- [Benchmark Experiment - Results (click here if you just wanna see the tables & graphs)](#benchmark-experiment---results)
+- [Benchmark Experiment - Results](#benchmark-experiment---results) <-- click here if you just wanna see the tables & graphs
 - [So, When Should You Use ArenaAllocator?](#so-when-should-you-use-arenaallocator)
 - [Current Features](#current-features)
 - [Things I May Add in the Future](#things-i-may-add-in-the-future)
