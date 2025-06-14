@@ -11,6 +11,8 @@ But here's a hint:
 </p>
 <p align="center"><em>Zero GC collections with Arena + Burst. Full control. No stutters.</em></p>
 
+###### More graphs, charts, and data tables can be found below. 😎
+
 ## What Is a Memory Arena?
 
 A memory arena is a low-level memory management technique where a large block of memory is allocated up front, and then smaller allocations are made from that block manually. This eliminates per-allocation overhead, enables predictable performance, and is especially useful in high-performance or real-time applications like games or simulations.
