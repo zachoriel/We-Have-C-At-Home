@@ -70,9 +70,9 @@ To test real-world impact, I implemented a sustained procedural workload that mi
   
 <summary>Summary (For Non-Programmers)</summary>
 
-I tested four versions of a system that creates data over time. Some used Unity’s default memory tools, others used my custom arena system. I tracked speed, memory usage, and how often Unity had to “clean up” (GC).
+I tested four variations of a system that generates data over time. Some used Unity’s built-in memory tools, others used my custom arena system. I tracked speed, memory usage, and how often Unity had to “clean up” memory (garbage collection — GC).
 
-The results: my arena system used significantly less memory, ran a little faster, and didn’t stutter from cleanup operations.
+The results: my arena system used significantly less memory, ran a little faster, and avoided performance stutters caused by uncontrollable memory cleanup.
 </details>
 
 <details>
