@@ -232,7 +232,7 @@ This project is currently a research-focused case study, not a production-ready 
 
 `var arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
 
-`var array = new ArenaArray<float>(&arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
+`var array = new ArenaArray<float>(arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
 
 I also highly recommend taking a look at both [NoiseGenerator_Unmanaged](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/DemoUsage/NoiseGenerator_Unmanaged.cs) and [ArenaAllocatorTests](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Tests/PlayMode/ArenaAllocatorTests.cs) to see real examples ArenaAllocator in action. 
 
