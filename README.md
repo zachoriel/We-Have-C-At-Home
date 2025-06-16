@@ -230,7 +230,7 @@ Ideal use cases include:
 
 This project is currently a research-focused case study, not a production-ready library. That said, if you ***really*** want to plug this into your project, here is an ***extremely barebones*** collection of code that you may find useful for getting started.
 
-`var arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
+`arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
 
 `var array = new ArenaArray<float>(arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
 
@@ -238,4 +238,4 @@ I also highly recommend taking a look at both [NoiseGenerator_Unmanaged](https:/
 
 ---
 
-You know what's funny? I learned more about memory management by working on this project than I ever did in any of the C++ courses I took in college. I guess making it work in an environment where you're *not supposed* to do it forces you to think about the concepts in a different way.
+You know what's funny? I learned more about memory management by working on this project than I ever did in college. I guess making it work in an environment where you're *not supposed* to do it forces you to think about the concepts in a different way.
