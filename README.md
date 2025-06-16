@@ -115,14 +115,16 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 
 ### Key Takeaways
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
-- **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a complete elimination of GC calls.
+- **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a near-complete elimination of GC calls.
 - **Arena + Burst** offers the best of both worlds: the lowest memory footprint and fastest execution.
 
 And because visual data is fun, here are some charts and graphs that bring the data to life:
 
 ![MillisecondsPerCycleChart](https://github.com/user-attachments/assets/85772674-6537-4ae8-8860-c1c52f094823)
+<p align="center"><em> ^ Note the flat green line. while the other methods are either slow, unpredictable, or both, <b>Arena + Burst</b> remains fast and steady throughout. No GC = no spikes, more determinism.</em></p>
+
 ![MemoryUsagePerCycleChart](https://github.com/user-attachments/assets/ea1fc947-4372-46ca-a12a-afc270ef2c11)
-<p align="center"><em>^ Note: while the theoretical peak allocation is ~2GB for 500 x 4MB 1024x1024 buffers, actual memory use under managed memory exceeded 2.7GB due to GC fragmentation, large object heap behavior, and Unity editor overhead. This reflects typical worst-case bloat/pressure when relying on the managed allocator.</em></p>
+<p align="center"><em>^ Note: while the theoretical peak allocation is ~2GB for 500 x 4MB 1024x1024 buffers, actual memory use under managed memory exceeded 2.7GB due to GC fragmentation, large object heap behavior, and editor overhead. This reflects typical worst-case bloat/pressure when relying on the managed allocator.</em></p>
 
 ![FrameTimeByStrategyGraph](https://github.com/user-attachments/assets/3a0289e4-a1af-4f3e-a1bf-ae281a505ce5)
 ![MemoryUsageByStrategyGraph](https://github.com/user-attachments/assets/200df555-e3f4-40e9-941b-4c186fa9a9ca)
@@ -212,7 +214,7 @@ Ideal use cases include:
 - Fully compatible with Burst and `IJobParallelFor`
 - No GC, optional disposal — reset the arena, not the heap
 - Fully integrated with Unity's Test Framework, including a premade unit test suite with pass/fail reporting
-- Extensive guardrails against invalid alignment, OOM errors, segfaults, etc.
+- Extensive guardrails against memory leaks, invalid alignment, OOM errors, segfaults, etc.
 
 ---
 
@@ -220,6 +222,7 @@ Ideal use cases include:
 
 - Editor windows for allocation & performance visualization, maybe a CSV importer that plots data to graphs automatically
 - Arena wizards & packaging for real-world use
+- ArenaHashmap container
 
 ---
 
