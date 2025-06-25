@@ -35,12 +35,14 @@ public static class ArenaUtil
     /// - Input: 13 → Output: 16
     /// 
     /// The method uses bitwise operations to efficiently "round up"
-    /// to the next power of two, and includes an optional clamp (e.g. to 64)
-    /// to avoid extreme over-alignment.
+    /// to the next power of two, and includes an optional clamp (e.g. to 64).
+    /// A max of 64 should be safe for 99% of use-cases, but for anyone messing
+    /// with highly specialized edge cases like custom AVX loads, you can pass-in
+    /// your own max (e.g. 128).
     /// 
     /// NOTE: The returned value will always be ≥ 1.
     /// </summary>
-    public static int GetNextPowerOfTwo(int value)
+    public static int GetNextPowerOfTwo(int value, int max = 64)
     {
         if (value < 1) { return 1; }
 
@@ -53,7 +55,7 @@ public static class ArenaUtil
         value |= value >> 16;
         value |= value >> 32;
         value++;
-        value = Mathf.Min(value, 64);
+        value = Mathf.Min(value, max);
 
         return value;
     }
