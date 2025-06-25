@@ -72,7 +72,7 @@ To test real-world impact, I implemented a sustained procedural workload that mi
 
 I tested four variations of a system that generates data over time. Some used Unity’s built-in memory tools, others used my custom arena system. I tracked speed, memory usage, and how often Unity had to “clean up” memory (garbage collection — GC).
 
-The results: my arena system used significantly less memory, ran a little faster, and avoided performance stutters caused by uncontrollable memory cleanup.
+The results: my arena system reduced memory usage significantly (up to 60%), ran a little faster, and avoided performance stutters caused by uncontrollable memory cleanup; resulting in a smoother experience for processes that are usually prone to freezes/spikes.
 </details>
 
 <details>
@@ -115,14 +115,16 @@ The experiment resulted in 2,000 rows of CSV data. These results were aggregated
 
 ### Key Takeaways
 - **Burst** is by far the biggest speed booster, but **Arena** reduces memory footprint dramatically.
-- **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a complete elimination of GC calls.
+- **Arena + No Burst** performs nearly on-par with **Managed + No Burst** in raw speed, but with less than half of the memory usage, and a near-complete elimination of GC calls.
 - **Arena + Burst** offers the best of both worlds: the lowest memory footprint and fastest execution.
 
 And because visual data is fun, here are some charts and graphs that bring the data to life:
 
 ![MillisecondsPerCycleChart](https://github.com/user-attachments/assets/85772674-6537-4ae8-8860-c1c52f094823)
+<p align="center"><em> ^ Note the flat green line. while the other methods are either slow, unpredictable, or both, <b>Arena + Burst</b> remains fast and steady throughout. No GC = no spikes, more determinism.</em></p>
+
 ![MemoryUsagePerCycleChart](https://github.com/user-attachments/assets/ea1fc947-4372-46ca-a12a-afc270ef2c11)
-<p align="center"><em>^ Note: while the theoretical peak allocation is ~2GB for 500 x 4MB 1024x1024 buffers, actual memory use under managed memory exceeded 2.7GB due to GC fragmentation, large object heap behavior, and Unity editor overhead. This reflects typical worst-case bloat/pressure when relying on the managed allocator.</em></p>
+<p align="center"><em>^ Note: while the theoretical peak allocation is ~2GB for 500 x 4MB 1024x1024 buffers, actual memory use under managed memory exceeded 2.7GB due to GC fragmentation, large object heap behavior, and editor overhead. This reflects typical worst-case bloat/pressure when relying on the managed allocator.</em></p>
 
 ![FrameTimeByStrategyGraph](https://github.com/user-attachments/assets/3a0289e4-a1af-4f3e-a1bf-ae281a505ce5)
 ![MemoryUsageByStrategyGraph](https://github.com/user-attachments/assets/200df555-e3f4-40e9-941b-4c186fa9a9ca)
@@ -212,7 +214,7 @@ Ideal use cases include:
 - Fully compatible with Burst and `IJobParallelFor`
 - No GC, optional disposal — reset the arena, not the heap
 - Fully integrated with Unity's Test Framework, including a premade unit test suite with pass/fail reporting
-- Extensive guardrails against invalid alignment, OOM errors, segfaults, etc.
+- Extensive guardrails against memory leaks, invalid alignment, OOM errors, segfaults, etc.
 
 ---
 
@@ -220,6 +222,7 @@ Ideal use cases include:
 
 - Editor windows for allocation & performance visualization, maybe a CSV importer that plots data to graphs automatically
 - Arena wizards & packaging for real-world use
+- ArenaHashmap container
 
 ---
 
@@ -227,12 +230,12 @@ Ideal use cases include:
 
 This project is currently a research-focused case study, not a production-ready library. That said, if you ***really*** want to plug this into your project, here is an ***extremely barebones*** collection of code that you may find useful for getting started.
 
-`var arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
+`arena = new ArenaAllocator(id: 0, capacityInBytes: 1024 * 1024, Allocator.Persistent);` -- arena has methods like Allocate, SmartAllocate, Reset, and Dispose.
 
-`var array = new ArenaArray<float>(&arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
+`var array = new ArenaArray<float>(arena, length: 256, "ExampleBuffer");` -- ArenaArray hooks into an arena for allocation in its constructor, so you don't have to worry about its lifetime management.
 
 I also highly recommend taking a look at both [NoiseGenerator_Unmanaged](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Scripts/Memory%20Arena/DemoUsage/NoiseGenerator_Unmanaged.cs) and [ArenaAllocatorTests](https://github.com/zachoriel/We-Have-C-At-Home/blob/main/Assets/Tests/PlayMode/ArenaAllocatorTests.cs) to see real examples ArenaAllocator in action. 
 
 ---
 
-You know what's funny? I learned more about memory management by working on this project than I ever did in any of the C++ courses I took in college. I guess making it work in an environment where you're *not supposed* to do it forces you to think about the concepts in a different way.
+You know what's funny? I learned more about memory management by working on this project than I ever did in college. I guess making it work in an environment where you're *not supposed* to do it forces you to think about the concepts in a different way.
