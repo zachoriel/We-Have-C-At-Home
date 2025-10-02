@@ -1,7 +1,7 @@
 # Memory Arena for Unity: Unsafe Memory Handled Safely, Zero Garbage Collection, Full Control
 
+![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=csharp&logoColor=white)\
 ![Unity 6000.0.42](https://img.shields.io/badge/unity-6000.0.42%2B-blue?logo=unity)
-![Last Commit](https://img.shields.io/github/last-commit/zachoriel/We-Have-C-At-Home)
 
 This is a high-performance memory management toolkit for Unity, inspired by [git-amend's excellent primer on memory arenas](https://www.youtube.com/watch?v=qIJxPAJ3R-I). It started as an experiment to learn more about unsafe code and evolved into a full-featured arena-based allocator with custom containers, tracking, logging, and benchmark tooling — all built to answer a single question:
 
